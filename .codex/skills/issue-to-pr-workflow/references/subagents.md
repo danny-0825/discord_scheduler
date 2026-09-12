@@ -10,8 +10,10 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 
 - 親Agentはタスク分解、依存関係、SubAgent割当、外部変更の重複防止を管理する。
 - 各SubAgentには、Task ID、Issue番号（存在する場合）、入力、成果物、依存、読み取り範囲、書き込み範囲、実行方式を渡す。
+- コードまたはdocsを変更するSubAgentは、親Agentから割り当てられた一意のworktree pathとbranchを使い、編集前に最新の基点ブランチから自分のworktreeを作成する。親Agentの作業ディレクトリへ直接書き込まない。
 - SubAgentは割り当てられた書き込み範囲を超えて変更しない。範囲外の変更が必要な場合は、理由と変更候補を親Agentへ返して停止する。
 - SubAgentは別タスクのworktreeやブランチを操作しない。
+- 1タスクのPR所有者は1つのAgentだけとし、独立タスクの変更を同じPRへまとめない。
 - Issue・PR作成、コメント、commit、pushは、タスクごとに指定された担当Agentだけが行う。未指定の場合は親Agentが行う。
 - 必要な権限がない場合は推測で代替せず、親Agentへ返す。
 

@@ -11,6 +11,8 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
 
+ワークフロー自体を変更・検証するときは [issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) を使用する。特に、複数Issueへの分割、並列SubAgent、複数worktreeまたは複数PRが関係する場合は、実行前後にこのレビューSkillを呼び出す。
+
 - Issue: [issue-review](../issue-review/SKILL.md)
 - docs: [docs-review](../docs-review/SKILL.md)
 - 実装: [implementation-review](../implementation-review/SKILL.md)
@@ -67,7 +69,7 @@ Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成�
 
 チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) に従ってタスクを分解する。タスクごとに目的、完了条件、変更範囲、依存タスク、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
 
-独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動して並列実行する。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
+独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動し、タスクごとに専用worktreeを作成させて並列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 
 ### 作業ブランチ・worktree作成フェーズ
 
@@ -77,8 +79,8 @@ Issueレビューで🔴がなくなり、Issueの作成条件が確定した後
 2. `git remote -v`、`git branch --all`、`git worktree list` でremote、基点ブランチ、既存ブランチ、worktreeを確認する。
 3. `git fetch origin` でリモートの最新状態を取得する。
 4. 通常の開発では `origin/develop` を最新の基点とする。必要に応じてローカルの `develop` を `git switch develop` と `git pull --ff-only origin develop` で更新する。`develop` がない場合は勝手に作成せず確認する。
-5. Issue番号を含む `feature/{IssueNo}-{short-description}` を作成し、タスク専用worktreeを `../{repo}-worktrees/{IssueNo}-{short-description}` に作成する。複数タスクでworktreeを共有しない。
-6. worktree内でdocs・実装・commit・push・PRを同じブランチで進める。書き込み範囲は独立性判定で定めた範囲に限定する。
+5. タスクごとに一意の `feature/{IssueNo}-{short-description}` と `../{repo}-worktrees/{IssueNo}-{short-description}` を割り当てる。並列タスクでは、担当SubAgent自身が `git fetch origin` 後に最新の `origin/develop` を基点としてブランチと専用worktreeを作成する。SubAgentを使わない場合だけ親Agentが作成する。
+6. SubAgentは割り当てられたworktree内でdocs・実装・commit・push・PRを同じブランチで進め、親Agentはworktree path、branch、Issue、PRの対応を検証する。書き込み範囲は独立性判定で定めた範囲に限定し、worktreeを共有しない。
 7. PRがマージされたことを確認したら、`git worktree remove <worktree-path>` でタスク専用worktreeを削除する。未コミット変更や未マージのcommitがある場合は削除せず停止する。
 
 ブランチ作成、push、Issue・PR作成、マージ、worktree削除は共有状態を変更するため、対象と権限を確認する。`main`、`develop`への直接コミット、force push、履歴の書き換えは行わない。
@@ -88,6 +90,10 @@ Issueレビューで🔴がなくなり、Issueの作成条件が確定した後
 Issue作成とIssueレビューが完了したら、実装前にIssueを元にdocsを作成する。docsの種類はリポジトリの規約に合わせるが、少なくとも仕様、利用者または呼び出し側、動作フロー、データ/API、エラー、制約、完了条件との対応を整理する。
 
 docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。
+
+### Workflowレビュー
+
+ワークフローのSkillまたは参照資料を変更した場合、またはIssue分割・並列SubAgent・複数worktree・複数PRを含む場合は、[issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) の静的チェックとworktree分離スモークテストを実行する。🔴が残る場合は修正して再レビューし、検証結果をIssueまたはPRへ記録する。
 
 ## GitHub CLI・Project連携フェーズ
 

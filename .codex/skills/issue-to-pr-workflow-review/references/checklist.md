@@ -1,0 +1,30 @@
+# Workflowレビュー観点
+
+## タスク分解
+
+- 独立性を変更ファイル、責務、完了条件、依存関係で説明できる
+- 独立タスクの間に共通ファイル競合がない
+- 依存タスクだけを直列化している
+- 失敗タスクとblockedタスクを区別している
+
+## Issue・branch・worktree・PR
+
+- 対応表に各タスクのIssue番号、branch、worktree、PR番号がある
+- branch名とworktree pathがタスクごとに一意である
+- branchは最新の`origin/develop`から作成される
+- 1つのPRに独立した複数Issueを混在させていない
+- PR本文に正しいIssueのclosing keywordがある
+
+## SubAgent
+
+- Agent IDと状態が記録されている
+- 各Agentに専用worktreeと書き込み範囲が渡されている
+- Issue／PR作成権限の担当が重複していない
+- 親Agentが成果物、テスト、差分を確認している
+- 完了Agentをcloseし、失敗時に独立タスクを継続している
+
+## 後片付け
+
+- PRマージ後に専用worktreeが削除されている
+- 未マージcommitや未コミット変更を残していない
+- 失敗・保留・未実行タスクを最終報告へ集約している
