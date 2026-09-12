@@ -7,6 +7,7 @@
 | Task | `docs/context/task/active/<IssueNo>/` | Issueの影響範囲、判断、引き継ぎ | Issue、実行結果、レビュー | Issue開始・レビュー・完了時 | Issue close後にarchive |
 | External | `docs/context/external/` | 外部情報の再利用と出典確認 | 参照元URL・公式文書 | 外部仕様参照時、版変更時 | 取得日・確認日を必須化 |
 | Generated | `docs/context/generated/` | 再生成可能な一覧・スナップショット | 生成コマンドと入力 | 入力変更時 | 手編集しない |
+| Search | `.agents/skills/document-search/` | docs・context・Skillの関連候補検索 | Skill、検索CLI、対象root | 検索対象やtokenizer変更時 | 外部index不要。Skill更新時に検証 |
 
 ## 記録項目
 

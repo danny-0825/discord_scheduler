@@ -79,7 +79,7 @@ Issue作成前に、Taskごとの影響範囲と依存関係を調査する。�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | T1 | `lib/foo.dart` | 呼び出し元・呼び出し先、型、設定 | 必須／不要 | `test/foo_test.dart` | なし／内容 | T2に依存／競合なし | Agent・scope | confirmed／未確認／対象外 |
 
-調査対象には、既存Issue・PR、docs、`docs/context`、Skill、Agent、コード、呼び出し元・呼び出し先、型・API、設定、テスト、Fixture、Mock、生成物、CI/CD、DB、外部サービスを含める。静的検索だけで判断できない実行時依存や外部サービスは、必要に応じてテスト・ビルド・実行時確認で補完する。contextを更新する場合は、正規情報源、registry、鮮度、Task contextのactive/archive状態を確認する。
+調査対象には、既存Issue・PR、docs、`docs/context`、Skill、Agent、コード、呼び出し元・呼び出し先、型・API、設定、テスト、Fixture、Mock、生成物、CI/CD、DB、外部サービスを含める。docs・context・Skillを広範に探索する場合は[document-search Skill](../document-search/SKILL.md)のBM25検索を先に使い、上位候補の本文と正規情報源を確認する。静的検索だけで判断できない実行時依存や外部サービスは、必要に応じてテスト・ビルド・実行時確認で補完する。contextを更新する場合は、正規情報源、registry、鮮度、Task contextのactive/archive状態を確認する。
 
 調査できない対象は`未確認`としてリスクと停止条件へ記録し、推測で`confirmed`にしない。Issue、docs、実装、レビューでスコープ・依存・競合が変わった場合は、このフェーズへ戻って影響範囲を再調査する。
 

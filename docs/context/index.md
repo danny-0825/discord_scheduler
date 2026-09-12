@@ -9,6 +9,7 @@
 - [Task context](task/): Issue単位の作業contextと引き継ぎ
 - [External resources](external/): 外部情報の出典・取得日・版・確認日
 - [Generated context](generated/): 再生成可能な成果物の扱い
+- [BM25 document search Skill](../../.agents/skills/document-search/SKILL.md): docs探索の検索手順と制約
 
 ## Source of truth
 

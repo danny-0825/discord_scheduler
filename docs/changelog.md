@@ -6,6 +6,7 @@
 
 | 日付 | 分類 | 概要 | 関連Issue/PR |
 | --- | --- | --- | --- |
+| 2026-09-13 | skill / workflow / other | BM25ベースの依存なしMarkdown検索Skill・CLI・検索設計とdocs探索ルールを追加 | #36 / PR作成予定 |
 | YYYY-MM-DD | workflow / requirements / design / skill / agent / other | 変更内容 | #Issue / #PR |
 
 ## 履歴
