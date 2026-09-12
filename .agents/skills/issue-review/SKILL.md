@@ -37,6 +37,7 @@ SubAgentとして実行される場合は、割り当てられたTask IDとIssue
 - セキュリティ、権限、個人情報、障害時の扱いが必要十分か
 - 依存関係、前提、未確定事項、リスクが明記されているか
 - Assignees、Labels、Milestone、Leadership、Project等が適切か
+- 関連する既存docs・context・Skillを広範に探す場合、`document-search` SkillのBM25検索結果を確認しているか
 
 ## 重大度
 

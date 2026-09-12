@@ -36,6 +36,7 @@ SubAgentとして実行される場合は、割り当てられたTask IDとdocs�
 - docsの配置、命名、フォーマット、更新方法がリポジトリ規約に合うか
 - context docsの場合、正規docsとの重複・矛盾がなく、registry、出典、取得日・確認日、Task contextのアーカイブ方針があるか
 - 完了条件とdocsの各項目を相互に追跡できるか
+- 関連docsを広範に探索する場合、`document-search` SkillのBM25結果を入口にし、上位候補の本文と正規情報源を確認しているか
 
 ## 重大度
 

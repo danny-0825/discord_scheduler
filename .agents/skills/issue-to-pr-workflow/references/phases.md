@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | 1 | タスク分解・独立性判定 | チャット入力 | タスク一覧、変更範囲、依存関係、競合資源、関係表、分割判断 | AIがIssue分割、独立性、担当、直列・並列実行を決定し、依存グラフがDAGである |
 | 2 | 実行計画 | タスク一覧、関係表 | タスクグラフ、SubAgent割当、Issue/Agent/branch/worktree/PR対応表 | 独立タスクと依存タスクの実行順、scope、担当、検証担当が確定している |
-| 3 | 影響範囲・依存関係調査 | タスク一覧、実行計画、既存資産、`docs/context` | 影響範囲表、更新要否、依存・競合、リスク、調査状態 | docs、context、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを調査し、`confirmed／未確認／対象外`を記録している |
+| 3 | 影響範囲・依存関係調査 | タスク一覧、実行計画、既存資産、`docs/context` | BM25候補、影響範囲表、更新要否、依存・競合、リスク、調査状態 | 広範なdocs・context・Skill探索で`document-search`を使い、候補本文と正規情報源を確認したうえで、docs、context、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを調査し、`confirmed／未確認／対象外`を記録している |
 | 4 | Issue作成 | タスク計画、影響範囲表 | Issue本文、Assignees、Labels、Milestone、Leadership等 | 必要なメタデータ、影響範囲、リスク、完了条件が日本語で定義され、Issueが作成されている |
 | 5 | Issueレビュー | Issue、関係表、影響範囲表 | Issueレビューコメント、修正版Issue、関係性レビュー結果 | 🔴がない。Issue間の依存・競合・SubAgent割当・影響範囲が追跡可能である |
 | 6 | 基点更新・worktree/branch作成 | 確定Issue、Git状態 | 最新の基点から作成した専用worktreeと`feature/{IssueNo}-{short-description}` | `git fetch`後に最新基点を確認し、タスク専用環境が作成されている |
