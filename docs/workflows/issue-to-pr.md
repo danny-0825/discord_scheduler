@@ -8,12 +8,12 @@
 
 1. 要望をタスクへ分解し、独立性と依存関係を判定する。
 2. タスクごとにIssue、ブランチ、worktree、PRの対応を決める。
-3. Issue作成前にdocs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスの影響範囲と依存関係を調査する。
+3. Issue作成前にdocs、`docs/context`、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスの影響範囲と依存関係を調査する。
 4. 影響範囲表へ更新要否、関連テスト、外部影響、依存・競合、担当・write scope、調査状態を記録する。
 5. Issueを日本語で作成し、影響範囲、リスク、Assignee、Labels、Milestone、Project等を確認する。
 6. Issueをレビューし、🔴がなくなるまで修正・再レビューする。
 7. 最新の`origin/develop`からブランチと専用worktreeを作成する。
-8. Issueを元に要件・設計docsを作成し、docsレビューを行う。
+8. Issueを元に要件・設計docsを作成し、必要に応じて`docs/context/task/active/<IssueNo>/`へ作業判断を記録してdocsレビューを行う。
 9. 実装・テスト・実装レビューを行い、🔴がなくなるまで修正する。
 10. 日本語説明のcommitを作成し、pushする。
 11. Issueのclosing keywordを含む日本語PRを作成し、Assignee、Labels、Milestone、Development、Reviewersを確認する。

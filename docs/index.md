@@ -9,6 +9,7 @@
 
 ## docs設計
 
+- [プロジェクトContext](context/index.md)
 - [docs運用ルール](governance/docs-governance.md)
 - [Workflow docs](workflows/index.md)
 - [要件定義書](requirements/README.md)
