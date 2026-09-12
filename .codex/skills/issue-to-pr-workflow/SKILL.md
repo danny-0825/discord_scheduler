@@ -93,7 +93,7 @@ docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビュー
 
 GitHub CLIを使うIssue・PR・Project操作は、[github-cli-auth.md](references/github-cli-auth.md)に従い、Keychainを利用できる通常権限のzsh環境で対象コマンドだけを実行する。サンドボックス全体を無効化せず、認証トークンを別の保存先へコピーしない。PR作成時はIssueのclosing keywordによるDevelopment連携と、Projectへの追加・フィールド更新を別々に確認し、Project操作が未実行なら完了扱いにしない。
 
-GitHub CLIの認証手順とProject／Development連携の詳細は [github-cli-auth.md](references/github-cli-auth.md) を参照する。
+GitHub CLIの認証手順とProject／Development連携の詳細は [github-cli-auth.md](references/github-cli-auth.md) を参照する。Issue・PRコメントの改行保持は [comment-posting.md](references/comment-posting.md) を参照する。
 
 ## 各フェーズの詳細
 

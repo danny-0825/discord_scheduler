@@ -5,6 +5,8 @@ description: Issueを元に作成した仕様・設計・利用方法などのdo
 
 # Docs Review
 
+コメント投稿時の改行保持は [issue-to-pr-workflowのcomment-posting.md](../issue-to-pr-workflow/references/comment-posting.md) に従う。
+
 ## 目的
 
 docsを、Issueと実装の共通契約として利用できる状態にする。docsの種類に応じて不要な観点は除外するが、Issueとの矛盾は必ず確認する。

@@ -5,6 +5,8 @@ description: Issueの要求、スコープ、完了条件、実装方針、メ�
 
 # Issue Review
 
+コメント投稿時の改行保持は [issue-to-pr-workflowのcomment-posting.md](../issue-to-pr-workflow/references/comment-posting.md) に従う。
+
 ## 目的
 
 Issueを実装可能で検証可能な状態にする。レビュー結果はIssueコメントに投稿できる形式で整理する。
