@@ -36,19 +36,21 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | WF-9 | IssueとSubAgentが`implements`、レビュー担当が`validates`で一意に対応する | Task/Issue/Agent対応表、Agent ID、権限表 |
 | WF-10 | SubAgent同士のread/write scope、共有資源、成果物が比較され、競合が直列化されている | scope比較表、競合判定、実行方式 |
 | WF-11 | Taskの成果物、commit、PRが担当Issueの完了条件へ追跡できる | traceability表、closing keyword、commit/PR |
+| WF-12 | Issue作成前にdocs、コード、テスト、設定、外部依存を調査し、未確認を推測で確定しない | 影響範囲表、調査状態、リスク、再調査記録 |
 
 ## 実行手順
 
 1. 対象Workflow、Issue、Task ID、SubAgent実行計画、Issue／PR本文、SubAgent threadの状態を読み込む。Codex公式にないJSON台帳の存在は必須条件にしない。
 2. [relationship-and-independence.md](../issue-to-pr-workflow/references/relationship-and-independence.md) の実行計画で、Task/Issue/Agent/branch/worktree/commit/PRを対応付ける。
-3. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
-4. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
-5. SubAgentに専用worktree path、branch名、read/write scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
-6. [checklist.md](references/checklist.md)で静的レビューを行う。
-7. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`でworktree分離を検証する。
-8. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
-9. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
-10. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
+3. Issue作成前の影響範囲表を確認し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、DB、外部サービスの更新要否と調査状態を比較する。`未確認`を推測で`confirmed`にした場合は🔴とする。
+4. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
+5. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
+6. SubAgentに専用worktree path、branch名、read/write scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
+7. [checklist.md](references/checklist.md)で静的レビューを行う。
+8. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`でworktree分離を検証する。
+9. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
+10. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
+11. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
 
 Task、Issue、Agent、成果物の対応が確認できない場合は、Issue/docs/実装レビューを完了扱いにしない。
 
