@@ -7,7 +7,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ## 目的
 
-チャットで受けた作業要望をタスクに分解し、独立性と依存関係を判定したうえで、Issue、docs、実装、PRの順に進める。フェーズの詳細は [phases.md](references/phases.md)、タスク分解と並列実行は [task-decomposition.md](references/task-decomposition.md)、SubAgentの役割と権限は [subagents.md](references/subagents.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
+チャットで受けた作業要望をタスクに分解し、独立性と依存関係を判定したうえで、Issue、docs、実装、PRの順に進める。フェーズの詳細は [phases.md](references/phases.md)、タスク分解と並列実行は [task-decomposition.md](references/task-decomposition.md)、SubAgentの実行ライフサイクル・役割・権限は [subagents.md](references/subagents.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
 
 レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
 
@@ -67,7 +67,7 @@ Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成�
 
 チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) に従ってタスクを分解する。タスクごとに目的、完了条件、変更範囲、依存タスク、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
 
-独立タスクは並列実行する。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のタスクを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
+独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動して並列実行する。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 
 ### 作業ブランチ・worktree作成フェーズ
 
