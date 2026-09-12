@@ -25,4 +25,4 @@
 - PRがマージされ、関連IssueとProject連携の状態が確認されている
 - `docs/changelog.md`に変更履歴がある
 
-詳細なSubAgent、指摘ID、GitHub CLI、コメント投稿形式は`.codex/skills/issue-to-pr-workflow/`を参照する。
+詳細なSubAgent、指摘ID、GitHub CLI、コメント投稿形式は`.agents/skills/issue-to-pr-workflow/`を参照する。

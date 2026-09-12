@@ -9,13 +9,17 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 ## 共通ルール
 
 - 親Agentはタスク分解、依存関係、SubAgent割当、外部変更の重複防止を管理する。
+- 親Agentは [relationship-and-independence.md](relationship-and-independence.md) の実行計画で、IssueとSubAgentの`implements`、レビューの`validates`、タスク間の依存・競合関係を管理する。
 - 各SubAgentには、Task ID、Issue番号（存在する場合）、入力、成果物、依存、読み取り範囲、書き込み範囲、実行方式を渡す。
+- 起動時の入力には、関連Issue、関係（`implements`または`validates`）、前提Task、後続Task、競合資源、Agentのread/write scopeを含める。
 - コードまたはdocsを変更するSubAgentは、親Agentから割り当てられた一意のworktree pathとbranchを使い、編集前に最新の基点ブランチから自分のworktreeを作成する。親Agentの作業ディレクトリへ直接書き込まない。
 - SubAgentは割り当てられた書き込み範囲を超えて変更しない。範囲外の変更が必要な場合は、理由と変更候補を親Agentへ返して停止する。
 - SubAgentは別タスクのworktreeやブランチを操作しない。
+- SubAgent同士が同じファイル・設定・外部資源を変更する場合は並列起動せず、所有Taskを決めて他を依存タスクにする。
 - 1タスクのPR所有者は1つのAgentだけとし、独立タスクの変更を同じPRへまとめない。
 - Issue・PR作成、コメント、commit、pushは、タスクごとに指定された担当Agentだけが行う。未指定の場合は親Agentが行う。
 - 必要な権限がない場合は推測で代替せず、親Agentへ返す。
+- 1Taskに複数Agentを割り当てる場合は、書き込みを行う`implements`担当を1名、検証を行う`validates`担当を別Agentとして実行計画へ登録する。複数の`implements`担当や作成担当自身だけの検証は認めない。
 
 ## 起動・実行・終了ライフサイクル
 
@@ -25,7 +29,7 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 4. 起動後にAgent ID、表示名、担当Task、状態を親Agentの計画へ記録し、ユーザーへ起動したことを報告する。
 5. SubAgentの追加指示は`multi_agent_v1__send_input`で送り、同じ作業を別SubAgentへ重複委譲しない。
 6. 親Agentが次のクリティカルパスで結果を必要とするときだけ`multi_agent_v1__wait_agent`で待機する。待機中は親Agentが独立した作業を進める。
-7. 完了・失敗・停止の状態と成果物を受け取り、親Agentが差分、テスト、権限範囲を確認する。失敗しても依存しないタスクは継続する。
+7. 完了・失敗・停止の状態と成果物を受け取り、親Agentが差分、テスト、権限範囲を確認する。成果物が担当Issueの完了条件を満たすこと、変更がwrite scope内であること、実行計画のstatusと一致することも照合する。失敗しても依存しないタスクは継続する。
 8. 結果確認後、不要になったSubAgentは`multi_agent_v1__close_agent`で終了し、Agent IDと最終状態を記録する。
 
 SubAgentが起動できない場合は、役割名だけを記録して起動済みと扱わず、親Agentが直列実行するか、権限不足として報告する。

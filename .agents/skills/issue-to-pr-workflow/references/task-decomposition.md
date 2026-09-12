@@ -24,7 +24,7 @@ AIが最終判断する。ユーザーに分割判断だけを再確認せず、
 
 ## 独立性判定
 
-各タスクについて、次の範囲を必ず定義する。
+各タスクについて、次の範囲を必ず定義する。関係の種類と対応表の詳細は [relationship-and-independence.md](relationship-and-independence.md) に従う。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -35,9 +35,10 @@ AIが最終判断する。ユーザーに分割判断だけを再確認せず、
 | 読み取り範囲 | 参照してよい関連コード・docs |
 | 依存タスク | 前提となるタスクIDと依存理由 |
 | 競合資源 | 共通ファイル、API、DB、設定、環境 |
+| 関係 | `depends_on`、`blocks`、`related`、`conflicts_with`の対象 |
 | 実行方式 | 並列または直列 |
 
-書き込み範囲は、この判定で決めたタスク固有の契約である。実装SubAgentが範囲外を変更する必要が生じた場合は、独立性判定をやり直してから進める。
+書き込み範囲は、この判定で決めたタスク固有の契約である。実装SubAgentが範囲外を変更する必要が生じた場合は、独立性判定をやり直してから進める。Issue、SubAgent、branch、worktree、PRを一意に対応付けられない場合も、起動前に判定をやり直す。
 
 ## 依存関係と並列化
 
@@ -55,6 +56,7 @@ T2 ──┘
 - 依存タスクを開始する前に、前提PRがマージされ、最新の基点ブランチへ反映されていることを確認する。
 - 1つのタスクが失敗しても、依存していないタスクは継続する。
 - 失敗タスクに依存するタスクはblockedとして保留し、最終報告に含める。
+- 関係グラフに循環、未定義のTask/Issue/Agent、依存先のない`blocks`がないことを確認する。
 
 ## Issue・branch・worktree・PR対応
 
@@ -82,6 +84,8 @@ Issue作成前に、最低限次の表を内部計画として作成する。
 | T2 | 未作成 | T1 | 直列 | `lib/bar/**` | `feature/{IssueNo}-bar` | `../{repo}-worktrees/{IssueNo}-bar` | 1タスク1PR | implementation-worker |
 
 Issue作成、コメント、commit、push、PR作成の担当Agentは各タスクで1つだけにする。
+
+実行計画には、Task ID、Issue番号、Agent ID、関係、依存・競合、write scope、branch、worktree、commit、PR、statusを記録する。親AgentはSubAgent起動前と完了時に計画を照合する。
 
 ## SubAgent実行計画
 

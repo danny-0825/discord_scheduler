@@ -16,6 +16,10 @@ T1が失敗し、T2が独立している場合、T2は継続する。T3がT1に�
 
 T1用PRをマージした後、T1のworktreeとbranchを削除する。T2の作業環境には影響を与えない。
 
+## シナリオE: 関係性と独立性の検証
+
+T1とT2がそれぞれIssue、SubAgent、worktree、PRを持ち、`related`だけである場合は並列実行する。T3がT1の成果物を必要とする場合は`depends_on`として直列化する。T4とT5が同じ設定ファイルを変更する場合は`conflicts_with`として同時起動せず、所有Taskを決める。各Taskの成果物、commit、PRが担当Issueの完了条件へ追跡できることを確認する。
+
 ## 実行範囲
 
 このシナリオは、外部GitHubを変更しないdry-runとローカルGitスモークテストで検証する。Issue作成、push、PR、mergeを実環境で検証する場合は、ユーザーの明示的な許可と対象リポジトリを確認する。

@@ -3,7 +3,11 @@
 ## タスク分解
 
 - 独立性を変更ファイル、責務、完了条件、依存関係で説明できる
+- IssueごとにTask ID、目的、完了条件、親Issue・関連Issueが明示されている
+- Issue間の`depends_on`、`blocks`、`related`、`conflicts_with`が実行計画へ記録されている
+- 依存グラフに循環、未定義参照、依存先のない`blocks`がない
 - 独立タスクの間に共通ファイル競合がない
+- 共通設定、生成物、DB、API、外部サービスなどの共有資源を比較している
 - 依存タスクだけを直列化している
 - 失敗タスクとblockedタスクを区別している
 
@@ -18,7 +22,11 @@
 ## SubAgent
 
 - Agent IDと状態が記録されている
+- IssueとSubAgentが`implements`で一意に対応している
+- 作成担当Agentとレビュー担当Agentが`validates`として記録されている
 - 各Agentに専用worktreeと書き込み範囲が渡されている
+- Agent間のread/write scopeと競合資源を比較している
+- Agentの成果物が担当Issueの完了条件へ追跡できる
 - Issue／PR作成権限の担当が重複していない
 - 親Agentが成果物、テスト、差分を確認している
 - 完了Agentをcloseし、失敗時に独立タスクを継続している

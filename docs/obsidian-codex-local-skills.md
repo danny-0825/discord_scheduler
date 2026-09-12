@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository is also an Obsidian Vault. The local Codex skills under `.codex/skills/` provide Obsidian CLI guidance and project-memory workflows without changing the global Codex skill installation.
+This repository is also an Obsidian Vault. The local Codex skills under `.agents/skills/` provide Obsidian CLI guidance and project-memory workflows without changing the global Codex skill installation.
 
 ## Scope
 
@@ -52,7 +52,7 @@ From the repository root, verify the setup with:
 
 ```sh
 test -f .agents/project-memory.env
-test "$(find .codex/skills -name SKILL.md | wc -l | tr -d ' ')" -ge 14
+test "$(find .agents/skills -name SKILL.md | wc -l | tr -d ' ')" -ge 14
 export PROJECT_MEMORY_CONFIG="$PWD/.agents/project-memory.env"
 set -a
 . "$PROJECT_MEMORY_CONFIG"
