@@ -59,7 +59,7 @@ Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scope�
 4. Issue作成（Labelsを付与）
 5. Issueレビューと修正
 6. 最新基点ブランチの更新と作業worktree・ブランチ作成
-7. docs作成
+7. docs作成（必要に応じて`docs/context`の参照・Task contextを更新）
 8. docsレビューと修正
 9. 実装
 10. 実装レビューと修正
@@ -79,7 +79,7 @@ Issue作成前に、Taskごとの影響範囲と依存関係を調査する。�
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | T1 | `lib/foo.dart` | 呼び出し元・呼び出し先、型、設定 | 必須／不要 | `test/foo_test.dart` | なし／内容 | T2に依存／競合なし | Agent・scope | confirmed／未確認／対象外 |
 
-調査対象には、既存Issue・PR、docs、Skill、Agent、コード、呼び出し元・呼び出し先、型・API、設定、テスト、Fixture、Mock、生成物、CI/CD、DB、外部サービスを含める。静的検索だけで判断できない実行時依存や外部サービスは、必要に応じてテスト・ビルド・実行時確認で補完する。
+調査対象には、既存Issue・PR、docs、`docs/context`、Skill、Agent、コード、呼び出し元・呼び出し先、型・API、設定、テスト、Fixture、Mock、生成物、CI/CD、DB、外部サービスを含める。静的検索だけで判断できない実行時依存や外部サービスは、必要に応じてテスト・ビルド・実行時確認で補完する。contextを更新する場合は、正規情報源、registry、鮮度、Task contextのactive/archive状態を確認する。
 
 調査できない対象は`未確認`としてリスクと停止条件へ記録し、推測で`confirmed`にしない。Issue、docs、実装、レビューでスコープ・依存・競合が変わった場合は、このフェーズへ戻って影響範囲を再調査する。
 
@@ -108,6 +108,10 @@ Issueレビューで🔴がなくなり、Issueの作成条件が確定した後
 Issue作成とIssueレビューが完了したら、実装前にIssueを元にdocsを作成する。docsの種類はリポジトリの規約に合わせるが、少なくとも仕様、利用者または呼び出し側、動作フロー、データ/API、エラー、制約、完了条件との対応を整理する。
 
 docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。対象ファイル、依存、競合、外部影響が変わった場合は、影響範囲・依存関係調査へ戻って実行計画と完了条件を更新する。
+
+### Context外部化の扱い
+
+`docs/context/`は作業開始時の探索性を高める要約・リンク・判断記録であり、要件・設計・Workflowの正規本文ではない。contextを追加・更新するときは、[Context registry](../../../docs/context/registry.md)に用途、正規情報源、更新契機、鮮度またはアーカイブ方針を記録する。正規docsの本文を複製せず、Issue単位の作業判断は`docs/context/task/active/<IssueNo>/`に置き、Issue close・PR merge後にarchiveする。外部情報は出典、取得日、版または更新日、確認日を記録し、秘密情報を保存しない。
 
 ### Workflowレビュー
 

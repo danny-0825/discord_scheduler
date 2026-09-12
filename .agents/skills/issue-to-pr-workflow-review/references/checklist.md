@@ -27,6 +27,7 @@
 - 更新要否、依存・競合、担当・write scope、調査状態がTaskごとに記録されている
 - 調査できない対象が`未確認`としてリスク・停止条件へ記録され、推測で確定されていない
 - Issue、docs、実装、レビューでスコープが変わった場合に再調査している
+- `docs/context`を変更する場合、正規情報源、registry、外部情報の鮮度、Task contextのarchiveを確認している
 
 ## SubAgent
 

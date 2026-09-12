@@ -26,4 +26,8 @@ Issue作成前に、Taskごとにdocs、Skill、Agent、コード、テスト、
 
 ## 実行範囲
 
+## シナリオG: Context外部化
+
+`docs/context`の入口からregistry、core、task、external、generatedへ辿れることを確認する。正規docsの重複コピーがなく、外部情報に出典・取得日・確認日があり、Issue close後のTask contextがarchiveへ移る運用を確認する。
+
 このシナリオは、外部GitHubを変更しないdry-runとローカルGitスモークテストで検証する。Issue作成、push、PR、mergeを実環境で検証する場合は、ユーザーの明示的な許可と対象リポジトリを確認する。

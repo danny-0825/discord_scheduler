@@ -37,13 +37,15 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | WF-10 | SubAgent同士のread/write scope、共有資源、成果物が比較され、競合が直列化されている | scope比較表、競合判定、実行方式 |
 | WF-11 | Taskの成果物、commit、PRが担当Issueの完了条件へ追跡できる | traceability表、closing keyword、commit/PR |
 | WF-12 | Issue作成前にdocs、コード、テスト、設定、外部依存を調査し、未確認を推測で確定しない | 影響範囲表、調査状態、リスク、再調査記録 |
+| WF-13 | `docs/context`が正規docsと役割分担し、registry・鮮度・Task lifecycleを追跡できる | context index/registry、source-of-truth、active/archive、外部メタデータ |
 
 ## 実行手順
 
 1. 対象Workflow、Issue、Task ID、SubAgent実行計画、Issue／PR本文、SubAgent threadの状態を読み込む。Codex公式にないJSON台帳の存在は必須条件にしない。
 2. [relationship-and-independence.md](../issue-to-pr-workflow/references/relationship-and-independence.md) の実行計画で、Task/Issue/Agent/branch/worktree/commit/PRを対応付ける。
 3. Issue作成前の影響範囲表を確認し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、DB、外部サービスの更新要否と調査状態を比較する。`未確認`を推測で`confirmed`にした場合は🔴とする。
-4. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
+4. `docs/context`を変更する場合、正規情報源との境界、registry、外部情報の出典・鮮度、Task contextのactive/archiveを確認する。重複仕様、出典不明、アーカイブ漏れは🔴とする。
+5. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
 5. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
 6. SubAgentに専用worktree path、branch名、read/write scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
 7. [checklist.md](references/checklist.md)で静的レビューを行う。

@@ -14,6 +14,8 @@ The configuration covers:
 
 The configuration does not enable a scheduled autojournal timer and does not contain credentials or user-specific absolute paths.
 
+Repository context and external memory are separate concerns. [`docs/context/`](context/index.md) is the repository-local context packet for source-of-truth links, task scope, and external-resource metadata. Obsidian `Work/` notes remain the external project-memory area; they are not copied into `docs/context/` and do not replace normative repository docs.
+
 ## Local activation
 
 Run commands from the repository root:

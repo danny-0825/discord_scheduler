@@ -24,6 +24,7 @@ SubAgentとして実行される場合は、割り当てられたTask IDとIssue
 - 関連するTask ID、親Issue、依存Issue、後続Issue、関連Issue、競合Issueが明示され、関係の種類が正しいか
 - Issueの完了条件、変更範囲、競合資源が他Issueと重複せず、独立Issueとして検証できるか
 - 影響範囲表があり、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスの更新要否と調査状態が記録されているか
+- `docs/context`を変更する場合、正規情報源との境界、registry、鮮度、Task contextのactive/archive方針が定義されているか
 - 担当SubAgent、read/write scope、branch、worktree、PRの対応を実行計画へ追跡できるか
 - 独立Issueを同じSubAgent、同じwrite scope、同じPRへ誤って割り当てていないか
 - 背景、目的、利用者、期待する価値が明確か
