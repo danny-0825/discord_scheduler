@@ -40,6 +40,8 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | WF-13 | `docs/context`が正規docsと役割分担し、registry・鮮度・Task lifecycleを追跡できる | context index/registry、source-of-truth、active/archive、外部メタデータ |
 | WF-14 | pre-branchのフェーズ1〜5でリポジトリ変更が発生しない | 開始時・branch gate前のstatus/diff、Agent権限、Issue記録 |
 | WF-15 | branch gateがIssueレビュー完了、最新基点、専用branch/worktreeを検証してからwriteを許可する | Issueレビュー結果、fetchログ、基点SHA、branch/worktree一覧 |
+| WF-16 | 作業開始時にPlanモードでTask、依存、scope、担当、フェーズ完了条件を確定する | Plan、Issue、関係表、フェーズ更新履歴 |
+| WF-17 | 実際の変更がPlanのwrite scope内で、forbidden scopeを変更していない | Planのscope、git diff、SubAgent報告、レビュー結果 |
 
 ## 実行手順
 
@@ -50,13 +52,14 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 5. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
 6. pre-branchの実行履歴にリポジトリ変更、commit、branch/worktree作成、pushがないことを確認する。差分がある場合は🔴とし、原因を特定するまでwriteフェーズへ進めない。
 7. branch gateのIssueレビュー完了、最新基点SHA、専用branch/worktree、write scopeを確認する。いずれかが欠ける場合は🔴とする。
-8. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
-9. SubAgentに専用worktree path、branch名、read/write scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
-10. [checklist.md](references/checklist.md)で静的レビューを行う。
-11. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`と`pre_branch_gate_test.sh`でゲートとworktree分離を検証する。
-12. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
-13. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
-14. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
+8. PlanモードのTask、scope、担当、依存、各フェーズの完了条件が確定しているか確認する。Plan未確定は🔴とする。
+9. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
+10. SubAgentに専用worktree path、branch名、read/write/forbidden scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
+11. [checklist.md](references/checklist.md)で静的レビューを行う。
+12. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`と`pre_branch_gate_test.sh`でゲート、scope、worktree分離を検証する。
+13. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
+14. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
+15. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
 
 Task、Issue、Agent、成果物の対応が確認できない場合は、Issue/docs/実装レビューを完了扱いにしない。
 

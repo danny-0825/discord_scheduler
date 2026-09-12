@@ -2,6 +2,16 @@
 
 ## シナリオA: 独立タスク2件
 
+### Plan未確定で開始しようとするケース
+
+- PlanにTask、依存、read/write/forbidden scope、担当、完了条件がない状態でIssue作成・SubAgent起動・branch作成を試みる。
+- 期待結果: Workflowは開始を停止し、Plan作成とscope確定を要求する。これは🔴として扱う。
+
+### scope外変更のケース
+
+- Planで`docs/workflows/**`だけをwrite scopeにしたTaskが、`src/**`または別Taskのdocsを変更する。
+- 期待結果: 親AgentはSubAgentを停止し、差分を受け取らず、影響範囲・独立性・Planを再判定する。
+
 T1とT2が異なるディレクトリを変更する場合、2つのSubAgentを並列起動する。各Agentが異なるworktreeとbranchを作成し、各自のcommitを作成できることを確認する。PRはT1用とT2用に分ける。
 
 ## シナリオB: 依存タスク

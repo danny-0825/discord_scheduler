@@ -21,6 +21,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ## 基本方針
 
+- 作業開始時はCodexのPlanモード（Planを作成・更新できる計画機能）へ入り、Planを確定してからフェーズ1を開始する。Plan機能が利用できない場合は、同じ項目をチャットまたはIssueへ記録し、Plan未確定のまま進めない。
 - チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
 - Issue作成前に影響範囲・依存関係を調査し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを確認する。調査できない対象は推測で確定せず、`未確認`としてリスクと停止条件へ記録する。
 - フェーズ1〜5はpre-branch read-onlyフェーズとする。リポジトリのコード、docs、Skill、Agent、設定、テスト、生成物を変更せず、変更候補は実行計画・Issue・コメントへ記録する。許可される外部変更は、担当者を明示したGitHub Issueの作成・コメント・属性設定だけである。
@@ -32,6 +33,25 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 - Issue、PR、コメント、docs、commitメッセージの説明文は日本語で作成する。commitのprefixは英語のConventional Commits形式を維持し、例は `feat: スケジュール登録を追加 (#123)` とする。
 - Issue・PR作成権限は必要な場合に限り、対象タスクを担当する1つのSubAgentまたは親Agentへ付与する。重複作成を防ぐため、作成担当をタスクごとに1つだけ決める。
 - 独立タスクの一部が失敗しても、依存していない他タスクは継続する。失敗タスクに依存する後続タスクだけを停止し、最後に全体結果を集約する。
+
+### Planモードとスコープ契約
+
+Planは作業の実行順を示すだけでなく、各Taskの変更権限と停止条件を固定する契約である。Planには最低限、次を含める。
+
+| 項目 | 必須内容 |
+| --- | --- |
+| Task | 仮ID、目的、Issue分割、単独の完了条件 |
+| 関係 | `depends_on`、`blocks`、`related`、`conflicts_with`、DAGの確認結果 |
+| Scope | read scope、write scope、forbidden scope、外部変更scope、関連テスト |
+| 担当 | 作成・実装・レビュー・PRの担当Agent、権限、SubAgent状態 |
+| Git | 基点SHA、branch、worktree、commit、PRの対応 |
+| フェーズ | 入力、成果物、完了条件、検証方法、停止条件、次フェーズ |
+
+Planはフェーズ開始時に`in_progress`、完了時に`completed`へ更新し、同時に複数フェーズを進行中にしない。PlanにTask、scope、担当、依存、完了条件がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装へ進まない。
+
+`write scope`は変更を許可する最小のファイル・ディレクトリ集合、`forbidden scope`は変更禁止範囲として具体的なパスまたはパターンで記録する。scope外の変更が必要になった場合は作業を停止し、影響範囲調査、独立性判定、Plan、Issueの完了条件を更新して再レビューする。口頭の判断だけでscopeを拡張しない。
+
+Planの前提、scope、依存、競合、完了条件が後続フェーズで変わった場合は、現在のフェーズを保留してPlanを更新し、変更された前提を再検証する。未更新のPlanに基づくcommit、push、PR、マージは完了扱いにしない。
 
 ## 実行前の確認
 
@@ -78,6 +98,8 @@ Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scope�
 
 Issueレビューで🔴がなくなった後、フェーズ6を開始する。`git status --short --branch`がcleanであること、`git fetch origin`後の基点SHA、branch、worktreeを確認できない場合は、フェーズ7以降へ進まない。フェーズ6が、リポジトリへ変更を加えてよい最初のゲートである。
 
+フェーズ6を開始する前に、Planのフェーズ1〜5が`completed`であり、Task/Issue/Agent/scopeの対応、依存DAG、Issueレビュー🔴0件、開始時のGit状態が記録されていることを確認する。これらが確認できない場合はbranch gateを開けない。
+
 ### 影響範囲・依存関係調査フェーズ
 
 Issue作成前に、Taskごとの影響範囲と依存関係を調査する。調査結果は実行計画とIssueへ反映し、次の表で追跡する。
@@ -97,6 +119,8 @@ Issue作成前に、Taskごとの影響範囲と依存関係を調査する。�
 チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。続けて影響範囲・依存関係を調査し、タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
 
 task-planner、impact-analyzer、issue-reviewerなどpre-branch担当はread-onlyで実行する。レビューのためにファイルを修正する必要がある場合も、Issueへ指摘を記録し、branch gate後のdocsまたは実装フェーズへ戻す。
+
+Planに記録したTaskごとのread/write/forbidden scope、依存、担当、検証方法をSubAgent起動入力へそのまま引き継ぐ。Planにない独立タスクを途中で追加したり、複数Taskのscopeをまとめたりする場合は、先にPlanとIssue分割を更新して再レビューする。
 
 独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動し、タスクごとに専用worktreeを作成させて並列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 

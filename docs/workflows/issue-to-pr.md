@@ -15,22 +15,28 @@ updated: 2026-09-13
 
 チャットやIssueで実装・docs・設定の変更要求を受け、作業範囲と完了条件を定義できること。
 
+## Planモード
+
+作業開始時にCodexのPlanモードへ入り、実行計画を作成する。PlanにはTask、Issue分割、依存・競合、read/write/forbidden scope、担当Agent、branch/worktree/PR、各フェーズの入力・成果物・完了条件・検証方法・停止条件を含める。Plan未確定、またはTaskとIssue/Agent/scopeの対応がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装を開始しない。
+
+Planは各フェーズの開始時と終了時に更新する。対象、scope、依存、競合、完了条件が変わった場合は、作業を保留し、影響範囲調査・独立性判定・Issueレビューへ戻ってPlanを更新する。
+
 ## 手順
 
 ### Pre-branch（read-only）
 
-1. 要望をタスクへ分解し、独立性と依存関係を判定する。
+1. Planモードを開始し、要望をタスクへ分解して独立性と依存関係を判定する。
 2. タスクごとにIssue、SubAgent、write scope、ブランチ、worktree、PRの対応を決める。
 3. BM25検索と読み取り調査で影響範囲・依存関係を確認し、候補ファイルと修正方針を記録する。
 4. 影響範囲表へ更新要否、関連テスト、外部影響、依存・競合、担当・write scope、調査状態を記録する。
 5. Issueを日本語で作成し、影響範囲、リスク、Assignee、Labels、Milestone、Project等を確認する。
-6. Issueをレビューし、🔴がなくなるまでIssue本文・コメントだけを修正・再レビューする。
+6. Issueをレビューし、🔴がなくなるまでIssue本文・コメントだけを修正・再レビューする。Planのpre-branch項目を完了に更新する。
 
 この段階では、コード、docs、Skill、Agent、設定、テスト、branch、worktree、commit、pushを変更しない。
 
 ### Branch gate後（write）
 
-7. Issueレビュー完了後、`git fetch origin`で最新`origin/develop`を確認し、専用branchとworktreeを作成する。
+7. Issueレビュー完了後、PlanのTask/Issue/Agent/scope/依存が確定していることを確認し、`git fetch origin`で最新`origin/develop`を確認して専用branchとworktreeを作成する。
 8. Issueを元にObsidian templateから要件・設計docsを作成し、Properties・Wikilink・backlinkを設定する。必要に応じて`docs/context/task/active/<IssueNo>/`へ作業判断を記録してdocsレビューを行う。
 9. 実装・テスト・実装レビューを行い、🔴がなくなるまで修正する。
 10. 日本語説明のcommitを作成し、pushする。
