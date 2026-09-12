@@ -1,6 +1,6 @@
 # Skill docs
 
-Skill docsは、Skillをいつ使うか、何を入力し、何を出力し、どの範囲を変更できるかを説明する。実体の手順は`.codex/skills/<skill-name>/SKILL.md`を参照し、本文を重複させない。
+Skill docsは、Skillをいつ使うか、何を入力し、何を出力し、どの範囲を変更できるかを説明する。実体の手順は`.agents/skills/<skill-name>/SKILL.md`を参照し、本文を重複させない。
 
 ## 必須項目
 

@@ -14,4 +14,4 @@ Agent docsは、親AgentとSubAgentの責務を分離し、並列実行時の書
 
 ## Codex固有のSubAgent
 
-実際の起動・状態管理・終了は[Codex SubAgent運用](codex-subagents.md)と`.codex/skills/issue-to-pr-workflow/references/subagents.md`に従う。役割名の記載だけではSubAgentを起動したことにならない。
+実際の起動・状態管理・終了は[Codex SubAgent運用](codex-subagents.md)と`.agents/skills/issue-to-pr-workflow/references/subagents.md`に従う。役割名の記載だけではSubAgentを起動したことにならない。

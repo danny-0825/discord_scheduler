@@ -28,7 +28,7 @@ description: GitFlow 方式でこのプロジェクトのブランチ作成、�
 
 ## ライフサイクル
 
-開始時は対象の基点を最新化する。独立タスクを並列実行する場合は、タスクごとに専用worktreeを作成する。
+開始時は対象の基点を最新化する。独立タスクを並列実行する場合は、[Issue-to-PR Workflowの関係性・独立性契約](../issue-to-pr-workflow/references/relationship-and-independence.md)でIssue、SubAgent、branch、worktree、PRの対応を確定し、タスクごとに専用worktreeを作成する。
 
 ```bash
 git fetch origin
@@ -57,7 +57,9 @@ worktree削除に失敗した場合は、原因を報告して他の独立タス
 ## 並列タスク
 
 - 独立タスクごとにブランチとworktreeを1つ割り当てる。
+- 同じファイル、設定、生成物、DB、APIを変更するタスクは独立扱いにせず、所有Taskを決めて依存関係を実行計画へ記録する。
 - 同じworktreeや同じ作業ブランチを複数タスクで共有しない。
+- 実行計画でTask、Issue、Agent、branch、worktree、scopeの対応が確認できるまで、並列ブランチの作成を完了扱いにしない。
 - 依存タスクだけを、前提タスクのPRマージ後に直列実行する。
 - 1つのタスクが失敗しても、依存していないタスクは継続する。
 

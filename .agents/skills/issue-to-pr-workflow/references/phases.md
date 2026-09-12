@@ -12,15 +12,15 @@
 
 | # | フェーズ | 入力 | 主な成果物 | 完了条件 |
 |---|---|---|---|---|
-| 1 | タスク分解・独立性判定 | チャット入力 | タスク一覧、変更範囲、依存関係、分割判断 | AIがIssue分割、独立性、担当、直列・並列実行を決定している |
-| 2 | 実行計画 | タスク一覧 | タスクグラフ、SubAgent割当、Issue/branch/worktree/PR対応表 | 独立タスクと依存タスクの実行順が確定している |
+| 1 | タスク分解・独立性判定 | チャット入力 | タスク一覧、変更範囲、依存関係、競合資源、関係表、分割判断 | AIがIssue分割、独立性、担当、直列・並列実行を決定し、依存グラフがDAGである |
+| 2 | 実行計画 | タスク一覧、関係表 | タスクグラフ、SubAgent割当、Issue/Agent/branch/worktree/PR対応表 | 独立タスクと依存タスクの実行順、scope、担当、検証担当が確定している |
 | 3 | Issue作成 | タスク計画 | Issue本文、Assignees、Labels、Milestone、Leadership等 | 必要なメタデータと完了条件が日本語で定義され、Issueが作成されている |
-| 4 | Issueレビュー | Issue | Issueレビューコメント、修正版Issue | 🔴がない。🔴があれば🟡🟢も修正・再レビュー済み |
+| 4 | Issueレビュー | Issue、関係表 | Issueレビューコメント、修正版Issue、関係性レビュー結果 | 🔴がない。Issue間の依存・競合・SubAgent割当が追跡可能である |
 | 5 | 基点更新・worktree/branch作成 | 確定Issue、Git状態 | 最新の基点から作成した専用worktreeと`feature/{IssueNo}-{short-description}` | `git fetch`後に最新基点を確認し、タスク専用環境が作成されている |
 | 6 | docs作成 | 確定Issue、専用worktree | 仕様・設計・利用方法等のdocs | Issueの完了条件と実装方針が日本語docsに反映されている |
 | 7 | docsレビュー | docs、Issue | docsレビューコメント、修正版docs | 🔴がない。Issueとの矛盾がない |
 | 8 | 実装 | Issue、docs、専用worktree | コード、テスト、設定、必要なドキュメント | 完了条件を満たし、検証が成功している |
-| 9 | 実装レビュー | 実装、Issue、docs | 実装レビューコメント、修正commit | 🔴がない。🔴があれば🟡🟢も修正・再レビュー済み |
+| 9 | 実装レビュー | 実装、Issue、docs、関係表 | 実装レビューコメント、修正commit、追跡結果 | 🔴がない。write scope、担当Issue、依存成果物との整合が確認済み |
 | 10 | commit | 検証済み差分 | 日本語説明のIssue番号付きcommit | 意図しない変更がなく、commitが作成されている |
 | 11 | push | commit | リモートブランチ | push先とcommitが確認できる |
 | 12 | PR作成 | Issue、リモートブランチ | 日本語PR、Assignees、Labels、Milestone、Development等 | IssueとPRが関連し、必要なメタデータが設定されている |

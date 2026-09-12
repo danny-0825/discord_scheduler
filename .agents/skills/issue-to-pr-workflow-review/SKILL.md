@@ -7,7 +7,7 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 
 ## 目的
 
-製品コードのレビューではなく、[issue-to-pr-workflow](../issue-to-pr-workflow/SKILL.md)の実行契約をレビューする。文書に役割名があるだけでなく、観測可能な成果物と状態遷移が得られるかを確認する。
+製品コードのレビューではなく、[issue-to-pr-workflow](../issue-to-pr-workflow/SKILL.md)の実行契約をレビューする。文書に役割名があるだけでなく、Issue、SubAgent、branch、worktree、commit、PRの関係、観測可能な成果物、状態遷移が得られるかを確認する。
 
 ## 適用条件
 
@@ -32,18 +32,25 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | WF-5 | 失敗したタスクに依存しないタスクは継続する | 成功・失敗・blockedの状態表 |
 | WF-6 | PR作成担当はタスクごとに1 Agentだけである | 権限割当表、PR URL |
 | WF-7 | PRマージ後に専用worktreeと不要なbranchを削除する | `git worktree list`、branch一覧 |
+| WF-8 | Issue間の依存・競合・関連が実行計画にあり、依存グラフがDAGである | 関係表、依存グラフ、未定義・循環参照チェック |
+| WF-9 | IssueとSubAgentが`implements`、レビュー担当が`validates`で一意に対応する | Task/Issue/Agent対応表、Agent ID、権限表 |
+| WF-10 | SubAgent同士のread/write scope、共有資源、成果物が比較され、競合が直列化されている | scope比較表、競合判定、実行方式 |
+| WF-11 | Taskの成果物、commit、PRが担当Issueの完了条件へ追跡できる | traceability表、closing keyword、commit/PR |
 
 ## 実行手順
 
-1. 対象Workflow、Issue、Task ID、SubAgent実行計画を読み込む。
-2. タスクをDAGにし、独立・依存・競合ファイル・担当Agentを表にする。
-3. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
-4. SubAgentに専用worktree path、branch名、書き込み範囲、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
-5. [checklist.md](references/checklist.md)で静的レビューを行う。
-6. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`でworktree分離を検証する。
-7. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
-8. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
-9. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
+1. 対象Workflow、Issue、Task ID、SubAgent実行計画、Issue／PR本文、SubAgent threadの状態を読み込む。Codex公式にないJSON台帳の存在は必須条件にしない。
+2. [relationship-and-independence.md](../issue-to-pr-workflow/references/relationship-and-independence.md) の実行計画で、Task/Issue/Agent/branch/worktree/commit/PRを対応付ける。
+3. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
+4. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
+5. SubAgentに専用worktree path、branch名、read/write scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
+6. [checklist.md](references/checklist.md)で静的レビューを行う。
+7. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`でworktree分離を検証する。
+8. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
+9. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
+10. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
+
+Task、Issue、Agent、成果物の対応が確認できない場合は、Issue/docs/実装レビューを完了扱いにしない。
 
 ## SubAgentへのworktree契約
 

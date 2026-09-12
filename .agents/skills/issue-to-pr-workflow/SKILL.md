@@ -7,7 +7,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ## 目的
 
-チャットで受けた作業要望をタスクに分解し、独立性と依存関係を判定したうえで、Issue、docs、実装、PRの順に進める。フェーズの詳細は [phases.md](references/phases.md)、タスク分解と並列実行は [task-decomposition.md](references/task-decomposition.md)、SubAgentの実行ライフサイクル・役割・権限は [subagents.md](references/subagents.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
+チャットで受けた作業要望をタスクに分解し、独立性と依存関係を判定したうえで、Issue、docs、実装、PRの順に進める。Issue、SubAgent、branch、worktree、commit、PRの関係は [relationship-and-independence.md](references/relationship-and-independence.md) の実行計画で管理する。フェーズの詳細は [phases.md](references/phases.md)、タスク分解と並列実行は [task-decomposition.md](references/task-decomposition.md)、SubAgentの実行ライフサイクル・役割・権限は [subagents.md](references/subagents.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
 
 レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
 
@@ -22,6 +22,8 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 ## 基本方針
 
 - チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
+- Issue作成前に、Issue同士の`depends_on`、`blocks`、`related`、`conflicts_with`を実行計画へ記録し、依存関係がDAGであることを確認する。
+- IssueごとにTask、SubAgent、書き込み範囲、branch、worktree、PRを一意に対応付ける。対応付けできないIssueやAgentは起動・実装・完了扱いにしない。
 - 分割したタスクは原則として「1タスク・1 Issue・1ブランチ・1 PR」とする。
 - 前提タスクがある場合は、その依存部分だけを直列実行する。独立したタスクはSubAgentと独立worktreeで並列実行する。
 - 独立性判定で決めた変更ファイル・ディレクトリの範囲を、実装SubAgentの書き込み許可範囲として引き継ぐ。
@@ -43,6 +45,8 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 IssueまたはPRのLabelsを扱う場合は、[labels.md](references/labels.md) の分類・付与ルールを適用する。GitHubのIssueラベルとGitのリリースタグ（`v<semver>`）を混同しない。
 
 Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成、PRコメント、PR属性変更は外部または共有状態を変更する。対象、変更内容、必要な権限を確認してから実行する。
+
+Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scopeを確定し、各フェーズで更新する。Codex公式にない独自JSON台帳を必須形式として扱わない。
 
 ## フェーズ実行
 
@@ -67,7 +71,7 @@ Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成�
 
 ### タスク分解・並列実行フェーズ
 
-チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) に従ってタスクを分解する。タスクごとに目的、完了条件、変更範囲、依存タスク、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
+チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
 
 独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動し、タスクごとに専用worktreeを作成させて並列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 
