@@ -27,7 +27,7 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | --- | --- | --- |
 | WF-1 | 独立タスクごとに1 Issue・1 branch・1 worktree・1 PRが対応する | タスク対応表、GitHub URL、branch、worktree一覧 |
 | WF-2 | 並列SubAgentは互いに異なるworktreeと書き込み範囲を持つ | Agent ID、worktree path、書き込み範囲 |
-| WF-3 | worktreeは担当SubAgentが最新基点から作成し、親Agentが結果を検証する | `git fetch origin`、`git worktree add`、検証ログ |
+| WF-3 | 書き込みTaskのworktreeは親Agentが最新基点から作成・検証し、SubAgentへ一意に割り当てる | `git fetch origin`、`git worktree add`、割当・検証ログ |
 | WF-4 | 依存タスクは前提PRのマージ後に最新基点から開始する | 依存グラフ、merge commit、基点SHA |
 | WF-5 | 失敗したタスクに依存しないタスクは継続する | 成功・失敗・blockedの状態表 |
 | WF-6 | PR作成担当はタスクごとに1 Agentだけである | 権限割当表、PR URL |
@@ -40,8 +40,8 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | WF-13 | `docs/context`が正規docsと役割分担し、registry・鮮度・Task lifecycleを追跡できる | context index/registry、source-of-truth、active/archive、外部メタデータ |
 | WF-14 | pre-branchのフェーズ1〜5でリポジトリ変更が発生しない | 開始時・branch gate前のstatus/diff、Agent権限、Issue記録 |
 | WF-15 | branch gateがIssueレビュー完了、最新基点、専用branch/worktreeを検証してからwriteを許可する | Issueレビュー結果、fetchログ、基点SHA、branch/worktree一覧 |
-| WF-16 | 作業開始時にPlanモードでTask、依存、scope、担当、フェーズ完了条件を確定する | Plan、Issue、関係表、フェーズ更新履歴 |
-| WF-17 | 実際の変更がPlanのwrite scope内で、forbidden scopeを変更していない | Planのscope、git diff、SubAgent報告、レビュー結果 |
+| WF-16 | 作業開始時に、Plan機能または同等の構造化記録でTask、依存、scope、担当、フェーズ完了条件を確定する | Plan、チャットまたはIssue、関係表、フェーズ更新履歴 |
+| WF-17 | 実際の変更が実行計画のwrite scope内で、forbidden scopeを変更していない | 計画のscope、git diff、SubAgent報告、レビュー結果 |
 
 ## 実行手順
 
@@ -53,11 +53,11 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 5. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
 6. pre-branchの実行履歴にリポジトリ変更、commit、branch/worktree作成、pushがないことを確認する。差分がある場合は🔴とし、原因を特定するまでwriteフェーズへ進めない。
 7. branch gateのIssueレビュー完了、最新基点SHA、専用branch/worktree、write scopeを確認する。いずれかが欠ける場合は🔴とする。
-8. PlanモードのTask、scope、担当、依存、各フェーズの完了条件が確定しているか確認する。Plan未確定は🔴とする。
+8. Plan機能またはチャット・Issueの構造化記録に、Task、scope、担当、依存、各フェーズの完了条件が確定しているか確認する。どちらも未確定なら🔴とする。
 9. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
-10. SubAgentに専用worktree path、branch名、read/write/forbidden scope、依存・後続Task、PR担当権限を渡す。SubAgentは自分のworktreeで`git fetch origin`後に`git worktree add`を実行する。
+10. 親Agentが専用worktree path、branch名、read/write/forbidden scope、依存・後続Task、PR担当権限を確定する。書き込みを委譲する場合は親Agentがworktreeを作成・検証してからSubAgentへ渡す。
 11. [checklist.md](references/checklist.md)で静的レビューを行う。
-12. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、必要なら`smoke_test.sh`と`pre_branch_gate_test.sh`でゲート、scope、worktree分離を検証する。
+12. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、`scripts/validate_workflow_contract.py`、必要に応じて`smoke_test.sh`と`pre_branch_gate_test.sh`で契約、ゲート、scope、worktree分離を検証する。
 13. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
 14. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
 15. 🔴がなくなるまでWorkflow定義を修正して再レビューする。
@@ -75,11 +75,11 @@ Base: origin/develop
 Branch: feature/123-short-description
 Worktree: ../discord_scheduler-worktrees/123-short-description
 Write scope: docs/workflows/**
-PR owner: docs-author
+PR owner: docs_author
 Forbidden: 他タスクのworktree、branch、Issue、PR、書き込み範囲外のファイル
 ```
 
-SubAgentは、担当worktreeを自分で作成し、そこでdocs・実装・commitを行う。PR担当Agentだけがpush・PR作成を行う。親Agentは作業開始前にworktreeとbranchの一意性を、完了後に差分とworktree削除を検証する。
+親Agentは、担当worktreeを作成・検証してからSubAgentへ割り当てる。SubAgentは割り当てられたworktree内だけでdocs・実装・明示的に許可されたcommitを行う。PR担当だけが明示的な権限でpush・PR作成を行う。親Agentは作業開始前にworktreeとbranchの一意性を、完了後に差分とworktree削除を検証する。
 
 ## レビュー結果
 

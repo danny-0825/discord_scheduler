@@ -12,11 +12,11 @@
 - Planで`docs/workflows/**`だけをwrite scopeにしたTaskが、`src/**`または別Taskのdocsを変更する。
 - 期待結果: 親AgentはSubAgentを停止し、差分を受け取らず、影響範囲・独立性・Planを再判定する。
 
-T1とT2が異なるディレクトリを変更する場合、2つのSubAgentを並列起動する。各Agentが異なるworktreeとbranchを作成し、各自のcommitを作成できることを確認する。PRはT1用とT2用に分ける。
+T1とT2が異なるディレクトリを変更する場合、親Agentが異なるworktreeとbranchを作成・検証してから、2つのSubAgentへ割り当てる。各Agentが割当worktreeで各自のcommitを作成できることを確認する。PRはT1用とT2用に分ける。
 
 ## シナリオB: 依存タスク
 
-T3がT1のdocsを前提とする場合、T1のPRマージ前にT3を起動しない。T1のmerge commitを確認した後、T3のAgentが最新の`origin/develop`から新しいworktreeを作成する。
+T3がT1のdocsを前提とする場合、T1のPRマージ前にT3を起動しない。T1のmerge commitを確認した後、親Agentが最新の`origin/develop`から新しいworktreeを作成・検証してT3へ割り当てる。
 
 ## シナリオC: 部分失敗
 
