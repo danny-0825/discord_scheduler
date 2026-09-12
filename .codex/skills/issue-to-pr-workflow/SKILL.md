@@ -9,7 +9,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ユーザーの要求をIssue、docs、実装、PRの順に具体化し、各段階でレビューと修正を行う。フェーズの詳細は [phases.md](references/phases.md) を参照する。
 
-レビューは、対象に応じて次のSkillを参照する。
+レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
 
 - Issue: [issue-review](../issue-review/SKILL.md)
 - docs: [docs-review](../docs-review/SKILL.md)
