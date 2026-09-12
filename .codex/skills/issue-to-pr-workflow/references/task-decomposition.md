@@ -81,3 +81,18 @@ Issue作成前に、最低限次の表を内部計画として作成する。
 | T2 | 未作成 | T1 | 直列 | `lib/bar/**` | implementation-worker |
 
 Issue作成、コメント、commit、push、PR作成の担当Agentは各タスクで1つだけにする。
+
+## SubAgent実行計画
+
+独立性判定の後、並列化できるタスクには実際のSubAgentを割り当てる。役割名を計画表へ書くだけでは起動扱いにしない。
+
+| 項目 | 必須内容 |
+| --- | --- |
+| 起動方法 | `multi_agent_v1__spawn_agent`を呼び出す |
+| 入力 | Task ID、目的、依存、読み取り範囲、書き込み範囲、禁止事項 |
+| 状態管理 | Agent ID、表示名、pending/running/completed/errored等の状態 |
+| 結果取得 | 必要時に`multi_agent_v1__wait_agent`、追加指示は`multi_agent_v1__send_input` |
+| 終了 | 結果確認後に`multi_agent_v1__close_agent`を呼び出す |
+| 失敗時 | 依存しないタスクは継続し、依存タスクだけblockedとして記録する |
+
+SubAgentの成果物は親Agentがレビューし、変更範囲、テスト、外部変更、未解決事項を確認してから次フェーズへ渡す。

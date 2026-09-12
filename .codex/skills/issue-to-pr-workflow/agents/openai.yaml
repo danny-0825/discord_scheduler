@@ -1,4 +1,4 @@
 interface:
   display_name: "Issue to PR Workflow"
   short_description: "Issue作成からPRレビューまでの開発フローを支援"
-  default_prompt: "Issueを作成し、レビュー、実装、commit、push、PR作成、PRレビューまでを順に進めてください。"
+  default_prompt: "要望を独立したタスクへ分解し、利用可能なSubAgentを実際に起動して並列化できる作業を委譲しながら、Issue作成、レビュー、実装、commit、push、PR作成、PRレビューまでを進めてください。"
