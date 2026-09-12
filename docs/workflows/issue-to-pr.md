@@ -6,13 +6,20 @@
 
 ## 手順
 
+### Pre-branch（read-only）
+
 1. 要望をタスクへ分解し、独立性と依存関係を判定する。
-2. タスクごとにIssue、ブランチ、worktree、PRの対応を決める。
-3. Issue作成前に[document-search Skill](../../.agents/skills/document-search/SKILL.md)でdocs・`docs/context`・関連SkillをBM25検索し、候補本文を確認したうえで、コード、テスト、設定、生成物、CI/CD、外部サービスの影響範囲と依存関係を調査する。
+2. タスクごとにIssue、SubAgent、write scope、ブランチ、worktree、PRの対応を決める。
+3. BM25検索と読み取り調査で影響範囲・依存関係を確認し、候補ファイルと修正方針を記録する。
 4. 影響範囲表へ更新要否、関連テスト、外部影響、依存・競合、担当・write scope、調査状態を記録する。
 5. Issueを日本語で作成し、影響範囲、リスク、Assignee、Labels、Milestone、Project等を確認する。
-6. Issueをレビューし、🔴がなくなるまで修正・再レビューする。
-7. 最新の`origin/develop`からブランチと専用worktreeを作成する。
+6. Issueをレビューし、🔴がなくなるまでIssue本文・コメントだけを修正・再レビューする。
+
+この段階では、コード、docs、Skill、Agent、設定、テスト、branch、worktree、commit、pushを変更しない。
+
+### Branch gate後（write）
+
+7. Issueレビュー完了後、`git fetch origin`で最新`origin/develop`を確認し、専用branchとworktreeを作成する。
 8. Issueを元に要件・設計docsを作成し、必要に応じて`docs/context/task/active/<IssueNo>/`へ作業判断を記録してdocsレビューを行う。
 9. 実装・テスト・実装レビューを行い、🔴がなくなるまで修正する。
 10. 日本語説明のcommitを作成し、pushする。

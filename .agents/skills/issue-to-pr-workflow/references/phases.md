@@ -10,23 +10,23 @@
 
 ## フェーズ
 
-| # | フェーズ | 入力 | 主な成果物 | 完了条件 |
-|---|---|---|---|---|
-| 1 | タスク分解・独立性判定 | チャット入力 | タスク一覧、変更範囲、依存関係、競合資源、関係表、分割判断 | AIがIssue分割、独立性、担当、直列・並列実行を決定し、依存グラフがDAGである |
-| 2 | 実行計画 | タスク一覧、関係表 | タスクグラフ、SubAgent割当、Issue/Agent/branch/worktree/PR対応表 | 独立タスクと依存タスクの実行順、scope、担当、検証担当が確定している |
-| 3 | 影響範囲・依存関係調査 | タスク一覧、実行計画、既存資産、`docs/context` | BM25候補、影響範囲表、更新要否、依存・競合、リスク、調査状態 | 広範なdocs・context・Skill探索で`document-search`を使い、候補本文と正規情報源を確認したうえで、docs、context、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを調査し、`confirmed／未確認／対象外`を記録している |
-| 4 | Issue作成 | タスク計画、影響範囲表 | Issue本文、Assignees、Labels、Milestone、Leadership等 | 必要なメタデータ、影響範囲、リスク、完了条件が日本語で定義され、Issueが作成されている |
-| 5 | Issueレビュー | Issue、関係表、影響範囲表 | Issueレビューコメント、修正版Issue、関係性レビュー結果 | 🔴がない。Issue間の依存・競合・SubAgent割当・影響範囲が追跡可能である |
-| 6 | 基点更新・worktree/branch作成 | 確定Issue、Git状態 | 最新の基点から作成した専用worktreeと`feature/{IssueNo}-{short-description}` | `git fetch`後に最新基点を確認し、タスク専用環境が作成されている |
-| 7 | docs作成 | 確定Issue、影響範囲表、専用worktree | 仕様・設計・利用方法等のdocs、必要なcontext更新 | Issueの完了条件と実装方針が日本語docsに反映され、contextの参照先・鮮度・Task lifecycleが整合している |
-| 8 | docsレビュー | docs、Issue、影響範囲表、context registry | docsレビューコメント、修正版docs | 🔴がない。Issueとの矛盾、contextの重複・リンク切れ・鮮度漏れがない |
-| 9 | 実装 | Issue、docs、影響範囲表、専用worktree | コード、テスト、設定、必要なドキュメント | 完了条件を満たし、影響範囲に記載した検証が成功している |
-| 10 | 実装レビュー | 実装、Issue、docs、影響範囲表、関係表 | 実装レビューコメント、修正commit、追跡結果 | 🔴がない。write scope、担当Issue、依存成果物、影響範囲との整合が確認済み |
-| 11 | commit | 検証済み差分 | 日本語説明のIssue番号付きcommit | 意図しない変更がなく、commitが作成されている |
-| 12 | push | commit | リモートブランチ | push先とcommitが確認できる |
-| 13 | PR作成 | Issue、リモートブランチ | 日本語PR、Assignees、Labels、Milestone、Development等 | IssueとPRが関連し、必要なメタデータが設定されている |
-| 14 | PRレビュー | PR差分、Issue、docs、影響範囲表 | PRレビューコメント、修正commit | 🔴がない。必要な修正と検証が完了している |
-| 15 | マージ後整理 | マージ済みPR、worktree | worktree削除、タスク結果、全体結果 | マージ済みタスクのworktreeが削除され、失敗・保留タスクが集約されている |
+| # | フェーズ | 入力 | 主な成果物 | 変更権限 | 完了条件 |
+|---|---|---|---|---|---|
+| 1 | タスク分解・独立性判定 | チャット入力 | タスク一覧、変更範囲、依存関係、競合資源、関係表、分割判断 | read-only | AIがIssue分割、独立性、担当、直列・並列実行を決定し、依存グラフがDAGである |
+| 2 | 実行計画 | タスク一覧、関係表 | タスクグラフ、SubAgent割当、Issue/Agent/branch/worktree/PR対応表 | read-only | 独立タスクと依存タスクの実行順、scope、担当、検証担当が確定している |
+| 3 | 影響範囲・依存関係調査 | タスク一覧、実行計画、既存資産、`docs/context` | BM25候補、影響範囲表、更新要否、依存・競合、リスク、調査状態 | read-only | 広範なdocs・context・Skill探索で`document-search`を使い、候補本文と正規情報源を確認したうえで、docs、context、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを調査し、`confirmed／未確認／対象外`を記録している |
+| 4 | Issue作成 | タスク計画、影響範囲表 | Issue本文、Assignees、Labels、Milestone、Leadership等 | GitHubのみ | 必要なメタデータ、影響範囲、リスク、完了条件が日本語で定義され、Issueが作成されている |
+| 5 | Issueレビュー | Issue、関係表、影響範囲表 | Issueレビューコメント、修正版Issue、関係性レビュー結果 | GitHubのみ | 🔴がない。Issue間の依存・競合・SubAgent割当・影響範囲が追跡可能である |
+| 6 | 基点更新・worktree/branch作成 | 確定Issue、Git状態 | 最新の基点から作成した専用worktreeと`feature/{IssueNo}-{short-description}` | write開始ゲート | `git fetch`後に最新基点を確認し、タスク専用環境が作成されている |
+| 7 | docs作成 | 確定Issue、影響範囲表、専用worktree | 仕様・設計・利用方法等のdocs、必要なcontext更新 | 専用worktreeのみ | Issueの完了条件と実装方針が日本語docsに反映され、contextの参照先・鮮度・Task lifecycleが整合している |
+| 8 | docsレビュー | docs、Issue、影響範囲表、context registry | docsレビューコメント、修正版docs | 専用worktree/Issue | 🔴がない。Issueとの矛盾、contextの重複・リンク切れ・鮮度漏れがない |
+| 9 | 実装 | Issue、docs、影響範囲表、専用worktree | コード、テスト、設定、必要なドキュメント | 専用worktreeのみ | 完了条件を満たし、影響範囲に記載した検証が成功している |
+| 10 | 実装レビュー | 実装、Issue、docs、影響範囲表、関係表 | 実装レビューコメント、修正commit、追跡結果 | 専用worktree/Issue | 🔴がない。write scope、担当Issue、依存成果物、影響範囲との整合が確認済み |
+| 11 | commit | 検証済み差分 | 日本語説明のIssue番号付きcommit | 専用branch | 意図しない変更がなく、commitが作成されている |
+| 12 | push | commit | リモートブランチ | GitHub | push先とcommitが確認できる |
+| 13 | PR作成 | Issue、リモートブランチ | 日本語PR、Assignees、Labels、Milestone、Development等 | GitHubのみ | IssueとPRが関連し、必要なメタデータが設定されている |
+| 14 | PRレビュー | PR差分、Issue、docs、影響範囲表 | PRレビューコメント、修正commit | 専用branch/PR | 🔴がない。必要な修正と検証が完了している |
+| 15 | マージ後整理 | マージ済みPR、worktree | worktree削除、タスク結果、全体結果 | Git/worktree | マージ済みタスクのworktreeが削除され、失敗・保留タスクが集約されている |
 
 ## 反復ルール
 

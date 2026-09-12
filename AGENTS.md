@@ -16,6 +16,7 @@
 - Custom Agentの役割は`.codex/agents/`、詳細なWorkflowは`.agents/skills/`を参照する。
 - Issue、docs、実装、PRのレビューでは、担当Task、SubAgent、read/write scope、依存成果物を確認する。
 - 外部サービスの変更、commit、push、Issue／PR作成は、依頼範囲と権限を確認してから実行する。
+- タスク分解、影響調査、Issue作成・レビューはpre-branch read-onlyで実行する。コード、docs、Skill、Agent、設定、テスト、branch、worktree、commit、pushは、Issueレビュー後に最新`origin/develop`から専用環境を作成してから行う。
 
 ## Git
 

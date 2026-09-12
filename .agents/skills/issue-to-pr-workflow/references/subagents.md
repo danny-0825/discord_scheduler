@@ -9,10 +9,12 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 ## 共通ルール
 
 - 親Agentはタスク分解、依存関係、SubAgent割当、外部変更の重複防止を管理する。
+- pre-branch担当の`task-planner`、`impact-analyzer`、`issue-reviewer`はread-onlyで、リポジトリ変更・branch/worktree作成・commitを行わない。Issueコメント権限がある場合も、計画とレビューの記録だけを行う。
 - 親Agentは [relationship-and-independence.md](relationship-and-independence.md) の実行計画で、IssueとSubAgentの`implements`、レビューの`validates`、タスク間の依存・競合関係を管理する。
 - 各SubAgentには、Task ID、Issue番号（存在する場合）、入力、成果物、依存、読み取り範囲、書き込み範囲、実行方式を渡す。
 - 起動時の入力には、関連Issue、関係（`implements`または`validates`）、前提Task、後続Task、競合資源、Agentのread/write scopeを含める。
 - コードまたはdocsを変更するSubAgentは、親Agentから割り当てられた一意のworktree pathとbranchを使い、編集前に最新の基点ブランチから自分のworktreeを作成する。親Agentの作業ディレクトリへ直接書き込まない。
+- docsまたはコードを変更するSubAgentは、フェーズ6のbranch/worktree作成完了と、担当Issueの🔴0件を親Agentから受け取るまで起動しない。
 - SubAgentは割り当てられた書き込み範囲を超えて変更しない。範囲外の変更が必要な場合は、理由と変更候補を親Agentへ返して停止する。
 - SubAgentは別タスクのworktreeやブランチを操作しない。
 - SubAgent同士が同じファイル・設定・外部資源を変更する場合は並列起動せず、所有Taskを決めて他を依存タスクにする。
