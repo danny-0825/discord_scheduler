@@ -32,6 +32,15 @@
 - `status: blocked`: 外部要因などで停止中
 - `status: needs-info`: 追加情報待ち
 
+### docs分類（`doc:`）
+
+- `doc: workflow`: ユースケース別の作業手順・完了条件
+- `doc: requirements`: 要件定義書
+- `doc: design`: 詳細設計書
+- `doc: skill`: Skillの仕様・利用方法
+- `doc: agent`: Agent/SubAgentの仕様・権限
+- `doc: other`: ADR、調査、移行、FAQ、その他のdocs
+
 ## 付与ルール
 
 1. Issueには`type:`を必ず1つ付与する。
@@ -39,8 +48,10 @@
 3. 優先度が判断できるIssueには`priority:`を1つ付与する。判断できない場合は推測で付与しない。
 4. 対応停止中または追加情報待ちの場合だけ`status:`を付与する。通常の対応中を示すラベルは作らない。
 5. Pull Requestには、関連Issueの`type:`、`area:`、`priority:`を基本的に継承する。差分の実態と一致しない場合はPR側で調整する。
-6. `duplicate`、`invalid`、`wontfix`、`question`、`good first issue`、`help wanted`、`accessibility`などの既存標準ラベルは、用途がある場合に限り補助的に使用する。
-7. ラベルの新設・改名・削除は、既存Issue/PRへの影響を確認し、ユーザーの承認を得てから行う。
+6. docsを扱うIssue/PRには、主分類に対応する`doc:`を1つ以上付与する。複数のdocs分類を同時に変更する場合は複数付与してよい。
+7. Skill・Agent docsは、`doc: skill`または`doc: agent`を付与し、要件定義・詳細設計を変更する場合は対応する分類も付与する。
+8. `duplicate`、`invalid`、`wontfix`、`question`、`good first issue`、`help wanted`、`accessibility`などの既存標準ラベルは、用途がある場合に限り補助的に使用する。
+9. ラベルの新設・改名・削除は、既存Issue/PRへの影響を確認し、ユーザーの承認を得てから行う。
 
 ## Issue作成時の確認
 
