@@ -21,7 +21,8 @@ updated: 2026-09-13
 5. 最新基点から専用branch/worktreeを作成した後、Skillの`SKILL.md`やAgent定義を変更し、必要な参照docsを`docs/skills/`または`docs/agents/`へ追加する。docsを追加・大きく更新する場合はObsidian template、Properties、Wikilink、MOC導線、backlinkを適用する。
 6. 実行例または独立した検証で、意図しないタスクへ適用されないことを確認する。
 7. 対象範囲や依存関係が変わった場合は、影響範囲を再調査し、表とIssueを更新する。
-8. docsレビューと実装レビューを行い、更新履歴を追記する。
+8. Skill変更時は、リポジトリ同梱の`../issue-to-pr-workflow-review/scripts/validate_skill_stdlib.py <skill-directory>`を実行する。外部validatorは追加検証として扱い、Pythonパッケージ不足を理由に必須検証を未完了にしない。
+9. docsレビューと実装レビューを行い、更新履歴を追記する。
 
 ### 影響範囲表
 
@@ -36,3 +37,4 @@ updated: 2026-09-13
 - 実際の適用例または検証結果がある
 - 対応するラベルと更新履歴がある
 - ObsidianでdocsのProperties・リンク・backlinkを確認し、通常のMarkdownとしても読める
+- 外部依存のないSkill構造検証が成功している

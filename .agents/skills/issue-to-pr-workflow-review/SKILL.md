@@ -49,6 +49,7 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 2. [relationship-and-independence.md](../issue-to-pr-workflow/references/relationship-and-independence.md) の実行計画で、Task/Issue/Agent/branch/worktree/commit/PRを対応付ける。
 3. Issue作成前の影響範囲表を確認し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、DB、外部サービスの更新要否と調査状態を比較する。`未確認`を推測で`confirmed`にした場合は🔴とする。
 4. `docs/context`を変更する場合、正規情報源との境界、registry、外部情報の出典・鮮度、Task contextのactive/archiveを確認する。重複仕様、出典不明、アーカイブ漏れは🔴とする。
+   Skillの構造検証は、まずリポジトリ同梱の`./scripts/validate_skill_stdlib.py <skill-directory>`をPython標準ライブラリだけで実行する。外部の公式validatorは利用可能な場合の追加検証とし、依存不足だけでレビューを未完了にしない。
 5. タスクをDAGにし、Issue間の依存・競合・関連、SubAgent間のscopeと共有資源を比較する。循環、未定義参照、所有者不在は🔴とする。
 6. pre-branchの実行履歴にリポジトリ変更、commit、branch/worktree作成、pushがないことを確認する。差分がある場合は🔴とし、原因を特定するまでwriteフェーズへ進めない。
 7. branch gateのIssueレビュー完了、最新基点SHA、専用branch/worktree、write scopeを確認する。いずれかが欠ける場合は🔴とする。

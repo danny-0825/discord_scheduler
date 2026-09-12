@@ -154,6 +154,8 @@ docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビュー
 
 ワークフローのSkillまたは参照資料を変更した場合、またはIssue分割・並列SubAgent・複数worktree・複数PRを含む場合は、[issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) の静的チェックとworktree分離スモークテストを実行する。🔴が残る場合は修正して再レビューし、検証結果をIssueまたはPRへ記録する。
 
+Skillの構造検証は、`../issue-to-pr-workflow-review/scripts/validate_skill_stdlib.py`を優先して実行する。これはPython標準ライブラリだけで実行できるリポジトリ内の必須検証であり、外部validatorの依存不足を理由にWorkflowを未完了にしない。
+
 ## GitHub CLI・Project連携フェーズ
 
 GitHub CLIを使うIssue・PR・Project操作は、[github-cli-auth.md](references/github-cli-auth.md)に従い、Keychainを利用できる通常権限のzsh環境で対象コマンドだけを実行する。サンドボックス全体を無効化せず、認証トークンを別の保存先へコピーしない。PR作成時はIssueのclosing keywordによるDevelopment連携と、Projectへの追加・フィールド更新を別々に確認し、Project操作が未実行なら完了扱いにしない。

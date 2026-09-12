@@ -42,6 +42,7 @@
 - 各Agentに専用worktreeと書き込み範囲が渡されている
 - Agent間のread/write scopeと競合資源を比較している
 - Planのwrite scopeとforbidden scopeがgit diffおよびSubAgent報告と一致している
+- Skill変更時に`scripts/validate_skill_stdlib.py`を実行し、外部依存なしで構造検証できている
 - Agentの成果物が担当Issueの完了条件へ追跡できる
 - Issue／PR作成権限の担当が重複していない
 - 親Agentが成果物、テスト、差分を確認している
