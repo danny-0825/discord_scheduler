@@ -1,4 +1,4 @@
 interface:
   display_name: "Docs Review"
   short_description: "Issueに基づくdocsをレビューし、必須修正を特定する"
-  default_prompt: "Issueに基づくdocsをレビューし、必須修正を特定する。レビュー結果を重大度別に整理してください。"
+  default_prompt: "指定されたTask IDのdocsだけを日本語でレビューし、指摘IDを採番して🔴必須修正・🟡推奨修正・🟢軽微/参考に分類してください。🔴がなくなるまで再レビューしてください。"

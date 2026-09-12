@@ -7,7 +7,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ## 目的
 
-ユーザーの要求をIssue、docs、実装、PRの順に具体化し、各段階でレビューと修正を行う。フェーズの詳細は [phases.md](references/phases.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
+チャットで受けた作業要望をタスクに分解し、独立性と依存関係を判定したうえで、Issue、docs、実装、PRの順に進める。フェーズの詳細は [phases.md](references/phases.md)、タスク分解と並列実行は [task-decomposition.md](references/task-decomposition.md)、SubAgentの役割と権限は [subagents.md](references/subagents.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
 
 レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
 
@@ -16,6 +16,16 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 - 実装: [implementation-review](../implementation-review/SKILL.md)
 
 すべてのレビューで、🔴がなくなるまで修正と再レビューを行う。🔴が存在する場合は、🟡と🟢も同じサイクルで可能な限り修正する。
+
+## 基本方針
+
+- チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
+- 分割したタスクは原則として「1タスク・1 Issue・1ブランチ・1 PR」とする。
+- 前提タスクがある場合は、その依存部分だけを直列実行する。独立したタスクはSubAgentと独立worktreeで並列実行する。
+- 独立性判定で決めた変更ファイル・ディレクトリの範囲を、実装SubAgentの書き込み許可範囲として引き継ぐ。
+- Issue、PR、コメント、docs、commitメッセージの説明文は日本語で作成する。commitのprefixは英語のConventional Commits形式を維持し、例は `feat: スケジュール登録を追加 (#123)` とする。
+- Issue・PR作成権限は必要な場合に限り、対象タスクを担当する1つのSubAgentまたは親Agentへ付与する。重複作成を防ぐため、作成担当をタスクごとに1つだけ決める。
+- 独立タスクの一部が失敗しても、依存していない他タスクは継続する。失敗タスクに依存する後続タスクだけを停止し、最後に全体結果を集約する。
 
 ## 実行前の確認
 
@@ -36,32 +46,42 @@ Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成�
 
 フェーズ一覧と各フェーズの入力・成果物・完了条件は [phases.md](references/phases.md) に定義する。通常は次の順で実行する。
 
-1. Issue作成（Labelsを付与）
-2. Issueレビューと修正
-3. 作業ブランチ作成
-4. docs作成
-5. docsレビューと修正
-6. 実装
-7. 実装レビューと修正
-8. commit
-9. push
-10. PR作成（IssueのLabelsを継承・確認）
-11. PRレビューと修正
+1. チャット要求のタスク分解・独立性判定
+2. 依存関係と並列実行計画の作成
+3. Issue作成（Labelsを付与）
+4. Issueレビューと修正
+5. 最新基点ブランチの更新と作業worktree・ブランチ作成
+6. docs作成
+7. docsレビューと修正
+8. 実装
+9. 実装レビューと修正
+10. commit
+11. push
+12. PR作成（IssueのLabelsを継承・確認）
+13. PRレビューと修正
+14. PRマージ後のworktree削除と結果集約
 
 各フェーズの開始時に前フェーズの完了条件を確認し、終了時に成果物、レビュー結果、テスト結果、未解決事項を記録する。フェーズを省略する場合は理由を報告する。
 
-### 作業ブランチ作成フェーズ
+### タスク分解・並列実行フェーズ
+
+チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) に従ってタスクを分解する。タスクごとに目的、完了条件、変更範囲、依存タスク、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
+
+独立タスクは並列実行する。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のタスクを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
+
+### 作業ブランチ・worktree作成フェーズ
 
 Issueレビューで🔴がなくなり、Issueの作成条件が確定した後、docs作成または実装を開始する前に作業ブランチを作成する。プロジェクトに `gitflow-branching` Skillがある場合はそれを呼び出し、なければ次の手順を適用する。
 
 1. `git status --short --branch` で未コミット変更を確認する。既存変更を破棄・退避せず、競合する場合は停止する。
-2. `git remote -v` と `git branch --all` でremote、基点ブランチ、既存ブランチを確認する。
-3. 通常の開発では `develop` を基点とし、Issue番号を含む `feature/{IssueNo}-{short-description}` を作成する。`develop` がない場合は勝手に作成せず確認する。
-4. 基点を最新化できる場合は、未コミット変更がないことを確認してから `git pull --ff-only` を行う。
-5. `git switch -c feature/{IssueNo}-{short-description}` でブランチを作成し、現在のブランチを確認する。
-6. ブランチ作成後、docs・実装・commit・push・PRを同じブランチで進める。
+2. `git remote -v`、`git branch --all`、`git worktree list` でremote、基点ブランチ、既存ブランチ、worktreeを確認する。
+3. `git fetch origin` でリモートの最新状態を取得する。
+4. 通常の開発では `origin/develop` を最新の基点とする。必要に応じてローカルの `develop` を `git switch develop` と `git pull --ff-only origin develop` で更新する。`develop` がない場合は勝手に作成せず確認する。
+5. Issue番号を含む `feature/{IssueNo}-{short-description}` を作成し、タスク専用worktreeを `../{repo}-worktrees/{IssueNo}-{short-description}` に作成する。複数タスクでworktreeを共有しない。
+6. worktree内でdocs・実装・commit・push・PRを同じブランチで進める。書き込み範囲は独立性判定で定めた範囲に限定する。
+7. PRがマージされたことを確認したら、`git worktree remove <worktree-path>` でタスク専用worktreeを削除する。未コミット変更や未マージのcommitがある場合は削除せず停止する。
 
-ブランチ作成、push、PR作成は共有状態を変更するため、ユーザーの許可がない場合は対象とコマンドを提示して停止する。`main`、`develop`への直接コミット、force push、履歴の書き換えは行わない。
+ブランチ作成、push、Issue・PR作成、マージ、worktree削除は共有状態を変更するため、対象と権限を確認する。`main`、`develop`への直接コミット、force push、履歴の書き換えは行わない。
 
 ### Issue作成後のdocsフェーズ
 

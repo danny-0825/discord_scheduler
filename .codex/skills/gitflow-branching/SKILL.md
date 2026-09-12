@@ -11,7 +11,7 @@ description: GitFlow 方式でこのプロジェクトのブランチ作成、�
 
 - `main`: リリース済みの安定版。直接コミットしない。
 - `develop`: 次回リリースの統合先。通常の開発の基点。存在しなければ、作成・push 前にユーザーの意図を確認する。
-- `feature/<issue>-<short-description>`: `develop` から作成し、機能追加・通常の変更に使う。
+- `feature/<issue>-<short-description>`: 最新の `origin/develop` から作成し、機能追加・通常の変更に使う。
 - `bugfix/<issue>-<short-description>`: `develop` から作成し、未リリースの不具合修正に使う。
 - `release/<semver>`: `develop` から作成し、リリース準備だけを行う。例: `release/1.2.0`。
 - `hotfix/<semver>`: `main` から作成し、本番リリース済み版の緊急修正に使う。例: `hotfix/1.2.1`。
@@ -21,13 +21,22 @@ description: GitFlow 方式でこのプロジェクトのブランチ作成、�
 ## 必ず最初に確認すること
 
 1. `git status --short --branch` で未コミット変更と現在のブランチを確認する。
-2. `git branch --list` と `git remote -v` で既存ブランチ・remote を確認する。ユーザーの未コミット変更は退避・破棄せず、競合する操作を止める。
-3. 対象ブランチを最新化する必要がある場合は、fetch や pull の実行前に remote と作業ツリーの状態を確認する。
-4. バージョンを扱う場合は `pubspec.yaml` の `version:` と既存タグを確認し、SemVer と整合させる。
+2. `git branch --all`、`git remote -v`、`git worktree list` で既存ブランチ・remote・worktreeを確認する。ユーザーの未コミット変更は退避・破棄せず、競合する操作を止める。
+3. ブランチ作成前に必ず `git fetch origin` を実行し、リモートの最新状態を取得する。
+4. 通常の開発は `origin/develop` を最新基点とする。ローカル `develop` を使う場合も、`git switch develop` 後に `git pull --ff-only origin develop` で更新してから作成する。
+5. バージョンを扱う場合は `pubspec.yaml` の `version:` と既存タグを確認し、SemVer と整合させる。
 
 ## ライフサイクル
 
-開始時は対象の基点を最新化し、`git switch -c <branch>` で新規ブランチを作る。既存ブランチがある場合は再利用できるか確認し、同名ブランチを上書きしない。
+開始時は対象の基点を最新化する。独立タスクを並列実行する場合は、タスクごとに専用worktreeを作成する。
+
+```bash
+git fetch origin
+git worktree add ../<repo>-worktrees/<issue>-<short-description> \
+  -b feature/<issue>-<short-description> origin/develop
+```
+
+単一worktreeで作業する場合は、最新化した基点から `git switch -c <branch>` で新規ブランチを作る。既存ブランチがある場合は再利用できるか確認し、同名ブランチを上書きしない。依存タスクは前提PRのマージ後に再度 `git fetch origin` し、最新の `origin/develop` から作成する。
 
 完了時は、変更の検証後に通常は `--no-ff` でマージし、履歴上で作業単位を残す。
 
@@ -35,7 +44,24 @@ description: GitFlow 方式でこのプロジェクトのブランチ作成、�
 - release → `main` と `develop` の両方。`main` 側で `pubspec.yaml` のリリース版を確定し、`v<semver>` タグを作成する。タグ作成後、release ブランチは削除候補として扱う。
 - hotfix → `main` と `develop` の両方。`main` 側でパッチ版タグ `v<semver>` を作成する。
 
-マージ先、push、タグ作成、ブランチ削除はリモートや履歴を変更する操作であるため、依頼に含まれていない場合はコマンド実行前にユーザーへ確認する。単に手順を求められた場合はコマンド案を提示するだけにする。
+マージ先、push、タグ作成、ブランチ削除、worktree削除はリモートや履歴またはローカル作業環境を変更する操作であるため、依頼に含まれていない場合はコマンド実行前にユーザーへ確認する。単に手順を求められた場合はコマンド案を提示するだけにする。
+
+PRがマージされたら、未コミット変更と未マージcommitがないことを確認してから専用worktreeを削除する。
+
+```bash
+git worktree remove <worktree-path>
+```
+
+worktree削除に失敗した場合は、原因を報告して他の独立タスクの処理を継続する。
+
+## 並列タスク
+
+- 独立タスクごとにブランチとworktreeを1つ割り当てる。
+- 同じworktreeや同じ作業ブランチを複数タスクで共有しない。
+- 依存タスクだけを、前提タスクのPRマージ後に直列実行する。
+- 1つのタスクが失敗しても、依存していないタスクは継続する。
+
+commitのprefixは英語のConventional Commits形式を使い、説明文は日本語にする。例: `feat: スケジュール登録を追加 (#123)`。
 
 ## このリポジトリの検証
 
