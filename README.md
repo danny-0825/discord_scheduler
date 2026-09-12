@@ -8,7 +8,7 @@ An example application built with dart_frog
 
 ## Documentation
 
-Open the project root as an Obsidian Vault to browse the source tree and project documentation together. The documentation entry point is [`docs/index.md`](docs/index.md).
+Open the project root as an Obsidian Vault to browse the source tree and project documentation together. Repository docs are Obsidian-first: create new or substantially updated docs from [`docs/templates/document-template.md`](docs/templates/document-template.md), maintain Properties and internal Wikilinks, and verify backlinks and display in Obsidian. The documentation entry point is [`docs/index.md`](docs/index.md).
 
 Obsidian settings are stored in `.obsidian/app.json`. Generated files and local tool directories are excluded from the Obsidian file list and search.
 

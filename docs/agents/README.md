@@ -1,3 +1,14 @@
+---
+type: agent
+status: active
+tags:
+  - docs/agent
+related:
+  - "[[docs/governance/obsidian-docs]]"
+  - "[[docs/index]]"
+updated: 2026-09-13
+---
+
 # Agent docs
 
 Agent docsは、親AgentとSubAgentの責務を分離し、並列実行時の書き込み範囲と外部変更権限を明確にする。

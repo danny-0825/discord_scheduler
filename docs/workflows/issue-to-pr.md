@@ -1,3 +1,14 @@
+---
+type: workflow
+status: active
+tags:
+  - docs/workflow
+related:
+  - "[[docs/governance/obsidian-docs]]"
+  - "[[docs/workflows/docs-maintenance]]"
+updated: 2026-09-13
+---
+
 # IssueからPRまでの開発Workflow
 
 ## 開始条件
@@ -20,7 +31,7 @@
 ### Branch gate後（write）
 
 7. Issueレビュー完了後、`git fetch origin`で最新`origin/develop`を確認し、専用branchとworktreeを作成する。
-8. Issueを元に要件・設計docsを作成し、必要に応じて`docs/context/task/active/<IssueNo>/`へ作業判断を記録してdocsレビューを行う。
+8. Issueを元にObsidian templateから要件・設計docsを作成し、Properties・Wikilink・backlinkを設定する。必要に応じて`docs/context/task/active/<IssueNo>/`へ作業判断を記録してdocsレビューを行う。
 9. 実装・テスト・実装レビューを行い、🔴がなくなるまで修正する。
 10. 日本語説明のcommitを作成し、pushする。
 11. Issueのclosing keywordを含む日本語PRを作成し、Assignee、Labels、Milestone、Development、Reviewersを確認する。

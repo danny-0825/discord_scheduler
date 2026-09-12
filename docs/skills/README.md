@@ -1,3 +1,14 @@
+---
+type: skill
+status: active
+tags:
+  - docs/skill
+related:
+  - "[[docs/governance/obsidian-docs]]"
+  - "[[docs/index]]"
+updated: 2026-09-13
+---
+
 # Skill docs
 
 Skill docsは、Skillをいつ使うか、何を入力し、何を出力し、どの範囲を変更できるかを説明する。実体の手順は`.agents/skills/<skill-name>/SKILL.md`を参照し、本文を重複させない。
@@ -11,6 +22,8 @@ Skill docsは、Skillをいつ使うか、何を入力し、何を出力し、�
 - 認証情報・安全性の境界
 - 検証方法
 - 関連Workflow、Issue、PR
+
+Skill docsもObsidian Propertiesと内部Wikilinkを持たせ、VaultのMOCから辿れるようにする。
 
 ## BM25検索
 

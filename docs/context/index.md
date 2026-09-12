@@ -1,3 +1,15 @@
+---
+type: context
+status: active
+tags:
+  - docs/context
+  - obsidian-first
+related:
+  - "[[docs/index]]"
+  - "[[docs/context/registry]]"
+updated: 2026-09-13
+---
+
 # プロジェクトContext
 
 このディレクトリは、作業開始時に必要なプロジェクト情報を短時間で参照するためのcontext packetです。正規の要件・設計・Workflow本文を複製せず、要約と参照先を管理します。

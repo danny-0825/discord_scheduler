@@ -118,6 +118,8 @@ Issueレビューで🔴がなくなり、Issueの作成条件が確定した後
 
 Issue作成とIssueレビューが完了したら、実装前にIssueを元にdocsを作成する。docsの種類はリポジトリの規約に合わせるが、少なくとも仕様、利用者または呼び出し側、動作フロー、データ/API、エラー、制約、完了条件との対応を整理する。
 
+このリポジトリではObsidianをdocsの主な作成・参照環境とする。新規または大きく更新するdocsは`docs/templates/document-template.md`から作成し、`docs/governance/obsidian-docs.md`に定めるProperties（`type`、`status`、`tags`、`related`、`updated`）、内部Wikilink、MOCからの導線、backlinkを設定する。作成後はObsidianでProperties、リンク、backlink、表、コードブロックの表示を確認し、通常のMarkdownビューアでも読めることを確認する。Obsidian固有表示を仕様本文の唯一の表現にしない。
+
 docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。対象ファイル、依存、競合、外部影響が変わった場合は、影響範囲・依存関係調査へ戻って実行計画と完了条件を更新する。
 
 ### Context外部化の扱い

@@ -1,8 +1,20 @@
+---
+type: skill
+status: active
+tags:
+  - docs/skill
+  - obsidian
+related:
+  - "[[docs/governance/obsidian-docs]]"
+  - "[[docs/skills/README]]"
+updated: 2026-09-13
+---
+
 # Obsidian and Codex local skills
 
 ## Purpose
 
-This repository is also an Obsidian Vault. The local Codex skills under `.agents/skills/` provide Obsidian CLI guidance and project-memory workflows without changing the global Codex skill installation.
+This repository is an Obsidian Vault and its repository docs are authored and reviewed Obsidian-first. The local Codex skills under `.agents/skills/` provide Obsidian CLI guidance and project-memory workflows without changing the global Codex skill installation. Normative docs still remain portable Markdown.
 
 ## Scope
 

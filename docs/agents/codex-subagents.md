@@ -1,3 +1,15 @@
+---
+type: agent
+status: active
+tags:
+  - docs/agent
+  - subagent
+related:
+  - "[[docs/agents/README]]"
+  - "[[docs/governance/obsidian-docs]]"
+updated: 2026-09-13
+---
+
 # Codex SubAgent運用
 
 ## 定義
