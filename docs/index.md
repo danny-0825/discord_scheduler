@@ -7,6 +7,17 @@
 - [[development/code-map|コードマップ]]
 - [プロジェクトREADME](../README.md)
 
+## docs設計
+
+- [docs運用ルール](governance/docs-governance.md)
+- [Workflow docs](workflows/index.md)
+- [要件定義書](requirements/README.md)
+- [詳細設計書](design/README.md)
+- [Skill docs](skills/README.md)
+- [Agent docs](agents/README.md)
+- [その他のdocs](other/README.md)
+- [更新履歴](changelog.md)
+
 ## 運用ルール
 
 - 設計・仕様・意思決定は、この`docs/`配下にMarkdownで記録する
