@@ -1,0 +1,4 @@
+interface:
+  display_name: "Docs Review"
+  short_description: "Issueに基づくdocsをレビューし、必須修正を特定する"
+  default_prompt: "Issueに基づくdocsをレビューし、必須修正を特定する。レビュー結果を重大度別に整理してください。"
