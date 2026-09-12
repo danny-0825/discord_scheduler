@@ -89,6 +89,12 @@ Issue作成とIssueレビューが完了したら、実装前にIssueを元にdo
 
 docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。
 
+## GitHub CLI・Project連携フェーズ
+
+GitHub CLIを使うIssue・PR・Project操作は、[github-cli-auth.md](references/github-cli-auth.md)に従い、Keychainを利用できる通常権限のzsh環境で対象コマンドだけを実行する。サンドボックス全体を無効化せず、認証トークンを別の保存先へコピーしない。PR作成時はIssueのclosing keywordによるDevelopment連携と、Projectへの追加・フィールド更新を別々に確認し、Project操作が未実行なら完了扱いにしない。
+
+GitHub CLIの認証手順とProject／Development連携の詳細は [github-cli-auth.md](references/github-cli-auth.md) を参照する。
+
 ## 各フェーズの詳細
 
 実装、commit、push、PR作成、PRレビューの具体的な入出力と完了条件は [phases.md](references/phases.md) に従う。レビューの観点とコメント形式は、それぞれのレビューSkillに委譲する。

@@ -76,3 +76,5 @@ dart test
 依存関係や SDK の都合でコマンドが失敗した場合は、失敗を成功扱いにせず、原因と未検証項目を報告する。release / hotfix では、バージョン更新、テスト、タグ対象コミットを確認してから完了とする。
 
 詳細な開始・完了コマンド、例外時の判断は [references/gitflow-procedures.md](references/gitflow-procedures.md) を参照する。
+
+GitHub CLIのKeychain認証やProject／Development連携を伴う場合は、Issue to PR Workflowの [github-cli-auth.md](../issue-to-pr-workflow/references/github-cli-auth.md) を参照し、通常権限のzshで対象コマンドだけを実行する。サンドボックス全体の無効化やトークンの複製は行わない。

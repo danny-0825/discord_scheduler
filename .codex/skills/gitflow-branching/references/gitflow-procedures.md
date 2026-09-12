@@ -70,6 +70,8 @@ git merge --no-ff hotfix/1.2.1 -m "緊急修正: 1.2.1をdevelopへマージ"
 
 ## 競合・例外
 
+GitHub CLIでIssue、PR、Projectを操作する場合は、macOS Keychainの認証を利用できる通常権限のzsh環境で対象コマンドだけを実行する。Codexのサンドボックス内で認証が失敗しても、トークンをコピーせず、[Issue to PR WorkflowのGitHub CLI認証手順](../../issue-to-pr-workflow/references/github-cli-auth.md)に従って再確認する。
+
 - merge conflict が起きたら、推測で解決せず、競合ファイルと選択肢を報告して止める。
 - `main` または `develop` が存在しない、remote 名が `origin` でない、対象タグが既に存在する場合は、状態を確認してから手順を調整する。
 - 既存のブランチ保護、CI、PR 必須ルールがある場合はそれを GitFlow の手順より優先し、ローカル merge の代わりに PR 作成手順を提示する。
