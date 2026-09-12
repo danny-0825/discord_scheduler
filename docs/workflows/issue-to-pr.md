@@ -17,7 +17,7 @@ updated: 2026-09-13
 
 ## Planモード
 
-作業開始時にCodexのPlanモードへ入り、実行計画を作成する。PlanにはTask、Issue分割、依存・競合、read/write/forbidden scope、担当Agent、branch/worktree/PR、各フェーズの入力・成果物・完了条件・検証方法・停止条件を含める。Plan未確定、またはTaskとIssue/Agent/scopeの対応がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装を開始しない。
+Plan機能が利用できる場合は実行計画を作成する。利用できない場合も、Task、Issue分割、依存・競合、read/write/forbidden scope、担当Agent、branch/worktree/PR、各フェーズの入力・成果物・完了条件・検証方法・停止条件をチャットまたはIssueへ構造化して記録する。実行計画未確定、またはTaskとIssue/Agent/scopeの対応がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装を開始しない。
 
 Planは各フェーズの開始時と終了時に更新する。対象、scope、依存、競合、完了条件が変わった場合は、作業を保留し、影響範囲調査・独立性判定・Issueレビューへ戻ってPlanを更新する。
 
@@ -25,7 +25,7 @@ Planは各フェーズの開始時と終了時に更新する。対象、scope�
 
 ### Pre-branch（read-only）
 
-1. Planモードを開始し、要望をタスクへ分解して独立性と依存関係を判定する。
+1. Plan機能が利用できる場合は実行計画を開始し、利用できない場合はチャットまたはIssueの構造化記録を開始して、要望をタスクへ分解し独立性と依存関係を判定する。
 2. タスクごとにIssue、SubAgent、write scope、ブランチ、worktree、PRの対応を決める。
 3. BM25検索と読み取り調査で影響範囲・依存関係を確認し、候補ファイルと修正方針を記録する。
 4. 影響範囲表へ更新要否、関連テスト、外部影響、依存・競合、担当・write scope、調査状態を記録する。
@@ -36,7 +36,7 @@ Planは各フェーズの開始時と終了時に更新する。対象、scope�
 
 ### Branch gate後（write）
 
-7. Issueレビュー完了後、PlanのTask/Issue/Agent/scope/依存が確定していることを確認し、`git fetch origin`で最新`origin/develop`を確認して専用branchとworktreeを作成する。
+7. Issueレビュー完了後、実行計画のTask/Issue/Agent/scope/依存が確定していることを確認し、親Agentが`git fetch origin`で最新`origin/develop`を確認して専用branchとworktreeを作成・検証する。書き込みSubAgentにはこのpathとbranchだけを割り当てる。
 8. Issueを元にObsidian templateから要件・設計docsを作成し、Properties・Wikilink・backlinkを設定する。必要に応じて`docs/context/task/active/<IssueNo>/`へ作業判断を記録してdocsレビューを行う。
 9. 実装・テスト・実装レビューを行い、🔴がなくなるまで修正する。
 10. 日本語説明のcommitを作成し、pushする。

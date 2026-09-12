@@ -10,7 +10,7 @@
 
 ## Planモードを使う実行契約
 
-作業開始時はCodexのPlanモードへ入り、フェーズ1〜15の実行計画を作成する。Planモードが使えない場合は、同じ計画をチャットまたはIssueへ記録するまで作業を開始しない。
+作業開始時はPlan機能が利用できる場合にフェーズ1〜15の実行計画を作成する。Plan機能が使えない場合は、同じ計画をチャットまたはIssueへ構造化して記録するまで作業を開始しない。
 
 Planには次の情報をTaskごとに含める。
 
@@ -105,7 +105,7 @@ T1 → Issue #101 → feature/101-example → worktree-101 → PR #201
 
 - Issue作成前は仮IDを使い、Issue作成後に実際のIssue番号へ置き換える。
 - 各タスクに専用worktreeを1つ割り当てる。
-- 並列タスクの担当SubAgentが、割り当てられた一意のbranchとworktreeを最新の基点から作成する。親Agentは作成結果を検証する。
+- branch gate後、親AgentがTaskごとに一意のbranchとworktreeを最新の基点から作成・検証し、担当SubAgentへ割り当てる。
 - worktree間で同じ作業ディレクトリを共有しない。
 - 依存タスクは、前提PRのマージ後に最新の`origin/develop`から新しいworktreeを作る。
 - PRがマージされたら、未コミット変更がないことを確認して専用worktreeを削除する。
@@ -117,8 +117,8 @@ Issue作成前に、最低限次の表を内部計画として作成する。
 
 | Task | Issue | 依存 | 実行 | 書き込み範囲 | Branch | Worktree | PR | SubAgent |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 | 未作成 | なし | 並列 | `lib/foo/**` | `feature/{IssueNo}-foo` | `../{repo}-worktrees/{IssueNo}-foo` | 1タスク1PR | implementation-worker |
-| T2 | 未作成 | T1 | 直列 | `lib/bar/**` | `feature/{IssueNo}-bar` | `../{repo}-worktrees/{IssueNo}-bar` | 1タスク1PR | implementation-worker |
+| T1 | 未作成 | なし | 並列 | `lib/foo/**` | `feature/{IssueNo}-foo` | 親Agentが準備する`../{repo}-worktrees/{IssueNo}-foo` | 1タスク1PR | implementation_worker |
+| T2 | 未作成 | T1 | 直列 | `lib/bar/**` | `feature/{IssueNo}-bar` | 親Agentが準備する`../{repo}-worktrees/{IssueNo}-bar` | 1タスク1PR | implementation_worker |
 
 Issue作成、コメント、commit、push、PR作成の担当Agentは各タスクで1つだけにする。
 
@@ -132,11 +132,11 @@ Planの実行中に対象、scope、依存、競合、完了条件が変わっ�
 
 | 項目 | 必須内容 |
 | --- | --- |
-| 起動方法 | `multi_agent_v1__spawn_agent`を呼び出す |
+| 起動方法 | 利用可能なCodexコラボレーション機能で実際に起動する |
 | 入力 | Task ID、目的、依存、読み取り範囲、書き込み範囲、禁止事項 |
 | 状態管理 | Agent ID、表示名、pending/running/completed/errored等の状態 |
-| 結果取得 | 必要時に`multi_agent_v1__wait_agent`、追加指示は`multi_agent_v1__send_input` |
-| 終了 | 結果確認後に`multi_agent_v1__close_agent`を呼び出す |
+| 結果取得 | 利用可能な状態確認・待機・追加指示機能で結果を取得する |
+| 終了 | 明示的な終了機能が利用できる場合に終了し、なければ最終報告を終了証跡とする |
 | 失敗時 | 依存しないタスクは継続し、依存タスクだけblockedとして記録する |
 
 SubAgentの成果物は親Agentがレビューし、変更範囲、テスト、外部変更、未解決事項を確認してから次フェーズへ渡す。

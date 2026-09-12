@@ -7,16 +7,19 @@
 - プロジェクト設定は`.codex/config.toml`に配置する。
 - リポジトリ全体の指示はこの`AGENTS.md`に記載する。
 - Issue・PR・SubAgentの関係は、実行計画、Issue／PR本文、SubAgent threadの状態・結果で管理する。Codex公式ではないランタイム台帳形式を必須化しない。
+- Custom Agentの正規roleは`task_planner`、`impact_analyzer`、`issue_reviewer`、`docs_author`、`docs_reviewer`、`implementation_worker`、`workflow_reviewer`の7つとする。Issue・PRの作成は、必要な場合だけ親AgentまたはTaskごとに1名指定した担当が行う。
 
 ## Issue-to-PR運用
 
 - チャット要求をTaskへ分解し、Issue間の親子・依存・競合・関連を明示する。
 - 独立Taskだけを並列化し、各Taskを1 Issue・1 branch・1 worktree・1 PRへ対応付ける。
-- SubAgentはCodexのSubAgent機能で実際に起動し、Agent threadの状態・結果・終了を親Agentが管理する。
+- SubAgentを委譲する場合、親Agentは利用可能なCodexコラボレーション機能で実際に起動し、状態・結果を管理する。実行環境に対応機能がなければ、起動済みとは扱わず親Agentが直列実行する。
+- Plan機能を利用できる場合は実行計画を更新する。利用できない場合も、Task、依存、scope、担当、完了条件をチャットまたはIssueへ構造化して記録してから進める。
 - Custom Agentの役割は`.codex/agents/`、詳細なWorkflowは`.agents/skills/`を参照する。
 - Issue、docs、実装、PRのレビューでは、担当Task、SubAgent、read/write scope、依存成果物を確認する。
 - 外部サービスの変更、commit、push、Issue／PR作成は、依頼範囲と権限を確認してから実行する。
 - タスク分解、影響調査、Issue作成・レビューはpre-branch read-onlyで実行する。コード、docs、Skill、Agent、設定、テスト、branch、worktree、commit、pushは、Issueレビュー後に最新`origin/develop`から専用環境を作成してから行う。
+- branch gate後、書き込みを委譲するTaskの専用branch/worktreeは親Agentが作成・検証し、SubAgentへpathとbranchを渡す。SubAgentは割り当てられたworktreeだけを変更する。
 
 ## Git
 

@@ -21,12 +21,13 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ## 基本方針
 
-- 作業開始時はCodexのPlanモード（Planを作成・更新できる計画機能）へ入り、Planを確定してからフェーズ1を開始する。Plan機能が利用できない場合は、同じ項目をチャットまたはIssueへ記録し、Plan未確定のまま進めない。
+- 作業開始時はPlan機能が利用できる場合に実行計画を作成・更新し、利用できない場合は同じ項目をチャットまたはIssueへ構造化して記録する。いずれも計画未確定のままフェーズ1を開始しない。
 - チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
 - Issue作成前に影響範囲・依存関係を調査し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを確認する。調査できない対象は推測で確定せず、`未確認`としてリスクと停止条件へ記録する。
 - フェーズ1〜5はpre-branch read-onlyフェーズとする。リポジトリのコード、docs、Skill、Agent、設定、テスト、生成物を変更せず、変更候補は実行計画・Issue・コメントへ記録する。許可される外部変更は、担当者を明示したGitHub Issueの作成・コメント・属性設定だけである。
 - Issue作成前に、Issue同士の`depends_on`、`blocks`、`related`、`conflicts_with`を実行計画へ記録し、依存関係がDAGであることを確認する。
 - IssueごとにTask、SubAgent、書き込み範囲、branch、worktree、PRを一意に対応付ける。対応付けできないIssueやAgentは起動・実装・完了扱いにしない。
+- 書き込みを委譲するTaskでは、branch gate後に親Agentが最新`origin/develop`から専用branch/worktreeを作成・検証し、SubAgentへ割り当てる。SubAgentは割り当てられたworktreeだけを変更する。
 - 分割したタスクは原則として「1タスク・1 Issue・1ブランチ・1 PR」とする。
 - 前提タスクがある場合は、その依存部分だけを直列実行する。独立したタスクはSubAgentと独立worktreeで並列実行する。
 - 独立性判定で決めた変更ファイル・ディレクトリの範囲を、実装SubAgentの書き込み許可範囲として引き継ぐ。
@@ -34,9 +35,9 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 - Issue・PR作成権限は必要な場合に限り、対象タスクを担当する1つのSubAgentまたは親Agentへ付与する。重複作成を防ぐため、作成担当をタスクごとに1つだけ決める。
 - 独立タスクの一部が失敗しても、依存していない他タスクは継続する。失敗タスクに依存する後続タスクだけを停止し、最後に全体結果を集約する。
 
-### Planモードとスコープ契約
+### 実行計画とスコープ契約
 
-Planは作業の実行順を示すだけでなく、各Taskの変更権限と停止条件を固定する契約である。Planには最低限、次を含める。
+実行計画は作業の実行順を示すだけでなく、各Taskの変更権限と停止条件を固定する契約である。Plan機能が利用できる場合はPlanに、利用できない場合はチャットまたはIssueに、最低限次を記録する。
 
 | 項目 | 必須内容 |
 | --- | --- |
@@ -47,11 +48,11 @@ Planは作業の実行順を示すだけでなく、各Taskの変更権限と停
 | Git | 基点SHA、branch、worktree、commit、PRの対応 |
 | フェーズ | 入力、成果物、完了条件、検証方法、停止条件、次フェーズ |
 
-Planはフェーズ開始時に`in_progress`、完了時に`completed`へ更新し、同時に複数フェーズを進行中にしない。PlanにTask、scope、担当、依存、完了条件がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装へ進まない。
+実行計画はフェーズ開始時と完了時に更新し、同時に複数フェーズを進行中にしない。Task、scope、担当、依存、完了条件がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装へ進まない。
 
 `write scope`は変更を許可する最小のファイル・ディレクトリ集合、`forbidden scope`は変更禁止範囲として具体的なパスまたはパターンで記録する。scope外の変更が必要になった場合は作業を停止し、影響範囲調査、独立性判定、Plan、Issueの完了条件を更新して再レビューする。口頭の判断だけでscopeを拡張しない。
 
-Planの前提、scope、依存、競合、完了条件が後続フェーズで変わった場合は、現在のフェーズを保留してPlanを更新し、変更された前提を再検証する。未更新のPlanに基づくcommit、push、PR、マージは完了扱いにしない。
+実行計画の前提、scope、依存、競合、完了条件が後続フェーズで変わった場合は、現在のフェーズを保留して計画を更新し、変更された前提を再検証する。未更新の計画に基づくcommit、push、PR、マージは完了扱いにしない。
 
 ## 実行前の確認
 
@@ -98,7 +99,7 @@ Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scope�
 
 Issueレビューで🔴がなくなった後、フェーズ6を開始する。`git status --short --branch`がcleanであること、`git fetch origin`後の基点SHA、branch、worktreeを確認できない場合は、フェーズ7以降へ進まない。フェーズ6が、リポジトリへ変更を加えてよい最初のゲートである。
 
-フェーズ6を開始する前に、Planのフェーズ1〜5が`completed`であり、Task/Issue/Agent/scopeの対応、依存DAG、Issueレビュー🔴0件、開始時のGit状態が記録されていることを確認する。これらが確認できない場合はbranch gateを開けない。
+フェーズ6を開始する前に、実行計画のフェーズ1〜5が完了し、Task/Issue/Agent/scopeの対応、依存DAG、Issueレビュー🔴0件、開始時のGit状態が記録されていることを確認する。これらが確認できない場合はbranch gateを開けない。
 
 ### 影響範囲・依存関係調査フェーズ
 
@@ -118,11 +119,11 @@ Issue作成前に、Taskごとの影響範囲と依存関係を調査する。�
 
 チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。続けて影響範囲・依存関係を調査し、タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
 
-task-planner、impact-analyzer、issue-reviewerなどpre-branch担当はread-onlyで実行する。レビューのためにファイルを修正する必要がある場合も、Issueへ指摘を記録し、branch gate後のdocsまたは実装フェーズへ戻す。
+`task_planner`、`impact_analyzer`、`issue_reviewer`、`docs_reviewer`、`workflow_reviewer`などpre-branch担当はread-onlyで実行する。レビューのためにファイルを修正する必要がある場合も、Issueへ指摘を記録し、branch gate後のdocsまたは実装フェーズへ戻す。
 
-Planに記録したTaskごとのread/write/forbidden scope、依存、担当、検証方法をSubAgent起動入力へそのまま引き継ぐ。Planにない独立タスクを途中で追加したり、複数Taskのscopeをまとめたりする場合は、先にPlanとIssue分割を更新して再レビューする。
+実行計画に記録したTaskごとのread/write/forbidden scope、依存、担当、検証方法をSubAgent起動入力へそのまま引き継ぐ。計画にない独立タスクを途中で追加したり、複数Taskのscopeをまとめたりする場合は、先に計画とIssue分割を更新して再レビューする。
 
-独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動し、タスクごとに専用worktreeを作成させて並列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
+独立タスクは、利用可能なCodexコラボレーション機能で実際にSubAgentを起動し、親Agentが準備したTaskごとの専用worktreeで並列実行する。対応機能がない場合は親Agentが直列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 
 ### 作業ブランチ・worktree作成フェーズ
 
@@ -132,8 +133,8 @@ Issueレビューで🔴がなくなり、Issueの作成条件が確定した後
 2. `git remote -v`、`git branch --all`、`git worktree list` でremote、基点ブランチ、既存ブランチ、worktreeを確認する。
 3. `git fetch origin` でリモートの最新状態を取得する。
 4. 通常の開発では `origin/develop` を最新の基点とする。必要に応じてローカルの `develop` を `git switch develop` と `git pull --ff-only origin develop` で更新する。`develop` がない場合は勝手に作成せず確認する。
-5. タスクごとに一意の `feature/{IssueNo}-{short-description}` と `../{repo}-worktrees/{IssueNo}-{short-description}` を割り当てる。並列タスクでは、担当SubAgent自身が `git fetch origin` 後に最新の `origin/develop` を基点としてブランチと専用worktreeを作成する。SubAgentを使わない場合だけ親Agentが作成する。
-6. SubAgentは割り当てられたworktree内でdocs・実装・commit・push・PRを同じブランチで進め、親Agentはworktree path、branch、Issue、PRの対応を検証する。書き込み範囲は独立性判定で定めた範囲に限定し、worktreeを共有しない。
+5. 親Agentがタスクごとに一意の `feature/{IssueNo}-{short-description}` と `../{repo}-worktrees/{IssueNo}-{short-description}` を割り当て、最新の `origin/develop` を基点としてbranchと専用worktreeを作成・検証する。
+6. SubAgentは割り当てられたworktree内でdocs・実装を進め、commit・push・PRは明示的な担当指定がある場合だけ実行する。親Agentはworktree path、branch、Issue、PRの対応を検証する。書き込み範囲は独立性判定で定めた範囲に限定し、worktreeを共有しない。
 7. PRがマージされたことを確認したら、`git worktree remove <worktree-path>` でタスク専用worktreeを削除する。未コミット変更や未マージのcommitがある場合は削除せず停止する。
 
 ブランチ作成、push、Issue・PR作成、マージ、worktree削除は共有状態を変更するため、対象と権限を確認する。`main`、`develop`への直接コミット、force push、履歴の書き換えは行わない。
@@ -152,7 +153,7 @@ docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビュー
 
 ### Workflowレビュー
 
-ワークフローのSkillまたは参照資料を変更した場合、またはIssue分割・並列SubAgent・複数worktree・複数PRを含む場合は、[issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) の静的チェックとworktree分離スモークテストを実行する。🔴が残る場合は修正して再レビューし、検証結果をIssueまたはPRへ記録する。
+ワークフローのSkillまたは参照資料を変更した場合、またはIssue分割・並列SubAgent・複数worktree・複数PRを含む場合は、[issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) の契約検証、Skill構造検証、worktree分離スモークテストを実行する。🔴が残る場合は修正して再レビューし、検証結果をIssueまたはPRへ記録する。
 
 Skillの構造検証は、`../issue-to-pr-workflow-review/scripts/validate_skill_stdlib.py`を優先して実行する。これはPython標準ライブラリだけで実行できるリポジトリ内の必須検証であり、外部validatorの依存不足を理由にWorkflowを未完了にしない。
 

@@ -22,7 +22,7 @@ Issue、SubAgent、branch、worktree、commit、PRの対応と関係を親Agent�
 
 CodexにはIssue・PR・SubAgentを横断する公式JSON台帳形式はない。親Agentは、チャットの計画、Issue／PR本文、SubAgent threadのAgent ID・状態・結果を使って関係を追跡する。必要な対応表はMarkdownのタスク計画またはIssue／PRコメントに記録し、独自ファイルをCodexの必須設定として扱わない。
 
-実行開始時はCodexのPlanモードでこの対応表を作成・更新する。Planモードが使えない場合は、同じ内容をチャットまたはIssueへ記録してから進める。Plan未確定の状態ではIssue作成、SubAgent起動、branch/worktree作成、実装を完了扱いにしない。
+実行開始時はPlan機能が利用できる場合にこの対応表を作成・更新する。Plan機能が使えない場合は、同じ内容をチャットまたはIssueへ構造化して記録してから進める。計画未確定の状態ではIssue作成、SubAgent起動、branch/worktree作成、実装を完了扱いにしない。
 
 Issue作成前は仮Task ID、SubAgent起動前は仮Agent IDを使い、実体が作成された時点で置き換える。
 

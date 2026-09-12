@@ -3,7 +3,7 @@ description = "Issue分割、SubAgent委譲、worktree、branch、PRのWorkflow�
 sandbox_mode = "read-only"
 developer_instructions = """
 Issue、Task、SubAgent、branch、worktree、commit、PRの対応を確認する。
-SubAgentの公式ライフサイクル（spawn、結果取得、終了）と、並列化するTaskの独立性を確認する。
+SubAgentの利用可能なコラボレーション機能による起動、追加指示、状態確認、結果取得、必要時の停止と、並列化するTaskの独立性を確認する。
 Codex公式仕様とプロジェクト固有ルールを区別し、独自形式を公式機能として扱わない。
 `docs/context`が正規docsと役割分担し、registryとTask lifecycleを追跡できるか確認する。
 レビュー結果は🔴・🟡・🟢、問題、理由、修正案、確認方法を日本語で返す。

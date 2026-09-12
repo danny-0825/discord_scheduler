@@ -2,8 +2,8 @@
 
 ## タスク分解
 
-- 作業開始時にPlanモードが開始され、Task、依存、scope、担当、フェーズ完了条件が記録されている
-- Plan未確定のままIssue作成、SubAgent起動、branch/worktree作成、実装へ進んでいない
+- 作業開始時にPlan機能またはチャット・Issueの構造化記録へ、Task、依存、scope、担当、フェーズ完了条件が記録されている
+- 実行計画未確定のままIssue作成、SubAgent起動、branch/worktree作成、実装へ進んでいない
 
 - 独立性を変更ファイル、責務、完了条件、依存関係で説明できる
 - IssueごとにTask ID、目的、完了条件、親Issue・関連Issueが明示されている
@@ -23,6 +23,7 @@
 - PR本文に正しいIssueのclosing keywordがある
 - branch作成前のstatus/diffがcleanで、pre-branchにリポジトリ変更・commit・pushがない
 - branch gateでIssueレビュー完了、最新`origin/develop`、専用branch/worktree、write scopeが確認されている
+- 書き込みTaskの専用branch/worktreeを親Agentが作成・検証し、SubAgentへ割り当てている
 
 ## 影響範囲・依存関係
 
@@ -37,6 +38,7 @@
 ## SubAgent
 
 - Agent IDと状態が記録されている
+- 実行環境で利用できる起動、追加指示、状態確認、結果取得、必要時の停止の能力を確認している
 - IssueとSubAgentが`implements`で一意に対応している
 - 作成担当Agentとレビュー担当Agentが`validates`として記録されている
 - 各Agentに専用worktreeと書き込み範囲が渡されている
@@ -46,7 +48,7 @@
 - Agentの成果物が担当Issueの完了条件へ追跡できる
 - Issue／PR作成権限の担当が重複していない
 - 親Agentが成果物、テスト、差分を確認している
-- 完了Agentをcloseし、失敗時に独立タスクを継続している
+- 明示的な終了機能がある場合だけ完了Agentを終了し、ない場合は最終報告を終了証跡としている。失敗時に独立タスクを継続している
 
 ## 後片付け
 
