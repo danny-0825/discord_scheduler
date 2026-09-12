@@ -17,6 +17,7 @@ updated: 2026-09-13
 
 | 日付 | 分類 | 概要 | 関連Issue/PR |
 | --- | --- | --- | --- |
+| 2026-09-13 | research / governance | Codex AI資産の公式・比較調査、キーワード台帳、再構成DAG、運用基準を追加 | #48 |
 | 2026-09-13 | workflow / skill / agent / docs / config / test | Codex設定を現行CLIのAgent設定形式へ修正し、SubAgentの実行契約、親Agentによるworktree準備、7つの正規role、構造化計画fallback、静的契約テストを統一 | #46 |
 | 2026-09-13 | workflow / skill / test | 外部`yaml`依存なしでSkill構造を検証する標準ライブラリ検証スクリプトを追加 | #44 / #45 |
 | 2026-09-13 | workflow / skill / agent | Issue-to-PR WorkflowでPlanモードを必須化し、Taskごとのread/write/forbidden scope、フェーズゲート、再計画条件を追加 | #42 / #43 |
