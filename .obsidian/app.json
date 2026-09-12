@@ -1,0 +1,14 @@
+{
+  "showUnsupportedFiles": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "docs",
+  "attachmentFolderPath": "docs/assets",
+  "userIgnoreFilters": [
+    ".git/",
+    ".dart_tool/",
+    ".vscode/",
+    "build/",
+    ".dart_frog/",
+    "coverage/"
+  ]
+}
