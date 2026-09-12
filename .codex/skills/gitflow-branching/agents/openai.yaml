@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitFlow Branching"
+  short_description: "Apply GitFlow branch conventions in this project"
+  default_prompt: "Use $gitflow-branching to plan or execute GitFlow branch operations for this project."
