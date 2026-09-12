@@ -1,3 +1,14 @@
+---
+type: requirements
+status: active
+tags:
+  - docs/requirements
+related:
+  - "[[docs/governance/obsidian-docs]]"
+  - "[[docs/index]]"
+updated: 2026-09-13
+---
+
 # 要件定義書
 
 要件定義書は、なぜ作るか、誰が使うか、何を満たす必要があるかを記録する。実装方法の詳細は詳細設計書へ分離する。

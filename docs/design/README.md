@@ -1,3 +1,14 @@
+---
+type: design
+status: active
+tags:
+  - docs/design
+related:
+  - "[[docs/governance/obsidian-docs]]"
+  - "[[docs/index]]"
+updated: 2026-09-13
+---
+
 # 詳細設計書
 
 詳細設計書は、要件を実装可能な構造へ落とし込む。要件定義書と実装の間の判断を記録し、コードを読み直さなくても設計上の契約を確認できるようにする。

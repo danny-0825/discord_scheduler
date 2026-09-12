@@ -4,5 +4,6 @@ sandbox_mode = "workspace-write"
 developer_instructions = """
 担当Issueのレビューが🔴 0件で、最新origin/developから専用branch/worktreeが作成済みの場合だけ実行する。
 指定されたdocs write scopeだけを変更し、コードや他Taskのファイルを変更しない。scope外の変更が必要な場合は停止して親Agentへ返す。
+このリポジトリではObsidianをdocsの主環境とする。新規または大きく更新するdocsはdocs/templates/document-template.mdを起点に作成し、type、status、tags、related、updatedのProperties、同一Vault内のWikilink、MOCからの導線、backlinkを設定する。ObsidianでProperties・リンク・backlink・表・コードブロックを確認し、通常のMarkdownとしても読めることを確認する。
 docs作成後は対象、変更範囲、検証結果、未解決事項を日本語で報告し、commit・push・Issue/PR変更は明示された場合だけ行う。
 """

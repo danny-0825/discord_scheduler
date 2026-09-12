@@ -1,3 +1,14 @@
+---
+type: context
+status: active
+tags:
+  - docs/context
+  - registry
+related:
+  - "[[docs/context/index]]"
+updated: 2026-09-13
+---
+
 # Context registry
 
 | Context | パス | 主な用途 | 正規情報源 | 更新契機 | 鮮度・アーカイブ |
