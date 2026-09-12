@@ -12,4 +12,5 @@
 
 | 日付 | 分類 | 概要 | 関連Issue/PR |
 | --- | --- | --- | --- |
+| 2026-09-13 | workflow / skill / other | Issue作成前の影響範囲・依存関係調査フェーズと、コード・テスト・外部依存を含む再調査ルールを追加 | #30 / PR作成予定 |
 | 2026-09-13 | workflow / requirements / design / skill / agent / other | docs運用ルール、分類、ユースケース別Workflow、更新履歴の初期構成を追加 | #18 |

@@ -22,6 +22,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 ## 基本方針
 
 - チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
+- Issue作成前に影響範囲・依存関係を調査し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを確認する。調査できない対象は推測で確定せず、`未確認`としてリスクと停止条件へ記録する。
 - Issue作成前に、Issue同士の`depends_on`、`blocks`、`related`、`conflicts_with`を実行計画へ記録し、依存関係がDAGであることを確認する。
 - IssueごとにTask、SubAgent、書き込み範囲、branch、worktree、PRを一意に対応付ける。対応付けできないIssueやAgentは起動・実装・完了扱いにしない。
 - 分割したタスクは原則として「1タスク・1 Issue・1ブランチ・1 PR」とする。
@@ -54,24 +55,37 @@ Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scope�
 
 1. チャット要求のタスク分解・独立性判定
 2. 依存関係と並列実行計画の作成
-3. Issue作成（Labelsを付与）
-4. Issueレビューと修正
-5. 最新基点ブランチの更新と作業worktree・ブランチ作成
-6. docs作成
-7. docsレビューと修正
-8. 実装
-9. 実装レビューと修正
-10. commit
-11. push
-12. PR作成（IssueのLabelsを継承・確認）
-13. PRレビューと修正
-14. PRマージ後のworktree削除と結果集約
+3. 影響範囲・依存関係調査
+4. Issue作成（Labelsを付与）
+5. Issueレビューと修正
+6. 最新基点ブランチの更新と作業worktree・ブランチ作成
+7. docs作成
+8. docsレビューと修正
+9. 実装
+10. 実装レビューと修正
+11. commit
+12. push
+13. PR作成（IssueのLabelsを継承・確認）
+14. PRレビューと修正
+15. PRマージ後のworktree削除と結果集約
 
 各フェーズの開始時に前フェーズの完了条件を確認し、終了時に成果物、レビュー結果、テスト結果、未解決事項を記録する。フェーズを省略する場合は理由を報告する。
 
+### 影響範囲・依存関係調査フェーズ
+
+Issue作成前に、Taskごとの影響範囲と依存関係を調査する。調査結果は実行計画とIssueへ反映し、次の表で追跡する。
+
+| Task | 対象 | 影響内容 | 更新要否 | 関連テスト | 外部影響 | 依存・競合 | 担当・write scope | 調査状態 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 | `lib/foo.dart` | 呼び出し元・呼び出し先、型、設定 | 必須／不要 | `test/foo_test.dart` | なし／内容 | T2に依存／競合なし | Agent・scope | confirmed／未確認／対象外 |
+
+調査対象には、既存Issue・PR、docs、Skill、Agent、コード、呼び出し元・呼び出し先、型・API、設定、テスト、Fixture、Mock、生成物、CI/CD、DB、外部サービスを含める。静的検索だけで判断できない実行時依存や外部サービスは、必要に応じてテスト・ビルド・実行時確認で補完する。
+
+調査できない対象は`未確認`としてリスクと停止条件へ記録し、推測で`confirmed`にしない。Issue、docs、実装、レビューでスコープ・依存・競合が変わった場合は、このフェーズへ戻って影響範囲を再調査する。
+
 ### タスク分解・並列実行フェーズ
 
-チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
+チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。続けて影響範囲・依存関係を調査し、タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
 
 独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動し、タスクごとに専用worktreeを作成させて並列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 
@@ -93,7 +107,7 @@ Issueレビューで🔴がなくなり、Issueの作成条件が確定した後
 
 Issue作成とIssueレビューが完了したら、実装前にIssueを元にdocsを作成する。docsの種類はリポジトリの規約に合わせるが、少なくとも仕様、利用者または呼び出し側、動作フロー、データ/API、エラー、制約、完了条件との対応を整理する。
 
-docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。
+docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。対象ファイル、依存、競合、外部影響が変わった場合は、影響範囲・依存関係調査へ戻って実行計画と完了条件を更新する。
 
 ### Workflowレビュー
 

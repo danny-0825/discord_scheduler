@@ -24,11 +24,11 @@ CodexにはIssue・PR・SubAgentを横断する公式JSON台帳形式はない�
 
 Issue作成前は仮Task ID、SubAgent起動前は仮Agent IDを使い、実体が作成された時点で置き換える。
 
-| Task | Issue | Agent(s) | 関係 | Depends on / Blocks | Read scope | Write scope | Branch | Worktree | PR | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 | #101 | A1 | implements | なし | `docs/**` | `docs/foo/**` | `feature/101-foo` | `../repo-worktrees/101-foo` | #201 | planned |
+| Task | Issue | Agent(s) | 関係 | Depends on / Blocks | Read scope | Write scope | Impact scope | Impact status | Branch | Worktree | PR | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 | #101 | A1 | implements | なし | `docs/**` | `docs/foo/**` | code / tests / docs / external | confirmed / 未確認 / 対象外 | `feature/101-foo` | `../repo-worktrees/101-foo` | #201 | planned |
 
-最低限、次のIDを実行計画で対応付ける。
+最低限、次のIDを実行計画で対応付ける。影響範囲表の`Impact scope`と`Impact status`も、Issue作成前にTaskごとに埋める。
 
 `Task ID → Issue → SubAgent → branch → worktree → commit → PR`
 
@@ -51,7 +51,7 @@ Issue、Agent、PRの作成担当・レビュー担当・外部変更権限も�
 
 ## 検証タイミング
 
-1. Issue作成前: タスク分解、DAG、競合資源、Issue分割理由を確定する。
+1. Issue作成前: タスク分解、DAG、影響範囲表、競合資源、Issue分割理由を確定する。
 2. SubAgent起動前: AgentごとのIssue、write scope、worktree、権限、依存を確定する。
 3. SubAgent完了時: write scope、commit、テスト、成果物、未解決依存を親Agentが照合する。
 4. PR作成前: 1 Issue・1 Task・1 PRの対応、closing keyword、変更範囲を確認する。
