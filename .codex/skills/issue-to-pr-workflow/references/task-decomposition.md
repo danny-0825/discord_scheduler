@@ -66,6 +66,7 @@ T1 → Issue #101 → feature/101-example → worktree-101 → PR #201
 
 - Issue作成前は仮IDを使い、Issue作成後に実際のIssue番号へ置き換える。
 - 各タスクに専用worktreeを1つ割り当てる。
+- 並列タスクの担当SubAgentが、割り当てられた一意のbranchとworktreeを最新の基点から作成する。親Agentは作成結果を検証する。
 - worktree間で同じ作業ディレクトリを共有しない。
 - 依存タスクは、前提PRのマージ後に最新の`origin/develop`から新しいworktreeを作る。
 - PRがマージされたら、未コミット変更がないことを確認して専用worktreeを削除する。
@@ -75,10 +76,10 @@ T1 → Issue #101 → feature/101-example → worktree-101 → PR #201
 
 Issue作成前に、最低限次の表を内部計画として作成する。
 
-| Task | Issue | 依存 | 実行 | 書き込み範囲 | SubAgent |
-| --- | --- | --- | --- | --- | --- |
-| T1 | 未作成 | なし | 並列 | `lib/foo/**` | implementation-worker |
-| T2 | 未作成 | T1 | 直列 | `lib/bar/**` | implementation-worker |
+| Task | Issue | 依存 | 実行 | 書き込み範囲 | Branch | Worktree | PR | SubAgent |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 | 未作成 | なし | 並列 | `lib/foo/**` | `feature/{IssueNo}-foo` | `../{repo}-worktrees/{IssueNo}-foo` | 1タスク1PR | implementation-worker |
+| T2 | 未作成 | T1 | 直列 | `lib/bar/**` | `feature/{IssueNo}-bar` | `../{repo}-worktrees/{IssueNo}-bar` | 1タスク1PR | implementation-worker |
 
 Issue作成、コメント、commit、push、PR作成の担当Agentは各タスクで1つだけにする。
 
