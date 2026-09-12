@@ -5,6 +5,8 @@ description: Issueとdocsに基づく実装、テスト、設定、差分をレ�
 
 # Implementation Review
 
+コメント投稿時の改行保持は [issue-to-pr-workflowのcomment-posting.md](../issue-to-pr-workflow/references/comment-posting.md) に従う。
+
 ## 目的
 
 実装がIssueとdocsの契約を満たし、意図しない変更や回帰を含まないことを確認する。レビュー結果はPRコメントに投稿できる形式で整理する。
