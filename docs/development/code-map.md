@@ -11,5 +11,8 @@ Obsidianではコードファイルも同じVault内のファイルとして参�
 ## ドキュメントからコードを確認する流れ
 
 1. このページのリンクから対象ファイルを開く
-2. 実装を変更した場合は、関連するテストとドキュメントを更新する
-3. `dart format --output=none --set-exit-if-changed .`、`dart analyze`、`dart test`を実行する
+2. Issue作成前に、変更対象の呼び出し元・呼び出し先、型・API、設定、関連テスト、Fixture、Mock、生成コードを検索する
+3. コード、テスト、docs、設定、CI/CD、外部サービスへの影響を影響範囲表へ記録する
+4. 実装を変更した場合は、関連するテストとドキュメントを更新する
+5. 対象範囲や依存関係が変わった場合は、影響範囲を再調査する。確認できない実行時依存は`未確認`として記録する
+6. `dart format --output=none --set-exit-if-changed .`、`dart analyze`、`dart test`を実行する
