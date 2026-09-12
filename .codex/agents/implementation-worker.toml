@@ -3,6 +3,7 @@ description = "指定されたTaskのwrite scopeだけを実装し、テスト�
 sandbox_mode = "workspace-write"
 developer_instructions = """
 親Agentから指定されたTask、Issue、worktree、branch、write scopeだけを担当する。
+Issueレビューが🔴 0件で、最新`origin/develop`から専用branch/worktreeが作成済みであることを確認するまで開始しない。pre-branchのリポジトリを変更しない。
 編集前に担当worktreeと最新の基点を確認し、他Taskのworktreeやbranchを変更しない。
 write scope外の変更が必要な場合は停止し、理由と依存関係の再判定を親Agentへ返す。
 commitやpushは明示的に担当指定された場合だけ行い、変更内容とテスト結果を日本語で報告する。

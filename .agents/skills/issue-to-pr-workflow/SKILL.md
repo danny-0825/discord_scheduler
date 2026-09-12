@@ -23,6 +23,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 - チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
 - Issue作成前に影響範囲・依存関係を調査し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを確認する。調査できない対象は推測で確定せず、`未確認`としてリスクと停止条件へ記録する。
+- フェーズ1〜5はpre-branch read-onlyフェーズとする。リポジトリのコード、docs、Skill、Agent、設定、テスト、生成物を変更せず、変更候補は実行計画・Issue・コメントへ記録する。許可される外部変更は、担当者を明示したGitHub Issueの作成・コメント・属性設定だけである。
 - Issue作成前に、Issue同士の`depends_on`、`blocks`、`related`、`conflicts_with`を実行計画へ記録し、依存関係がDAGであることを確認する。
 - IssueごとにTask、SubAgent、書き込み範囲、branch、worktree、PRを一意に対応付ける。対応付けできないIssueやAgentは起動・実装・完了扱いにしない。
 - 分割したタスクは原則として「1タスク・1 Issue・1ブランチ・1 PR」とする。
@@ -71,6 +72,12 @@ Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scope�
 
 各フェーズの開始時に前フェーズの完了条件を確認し、終了時に成果物、レビュー結果、テスト結果、未解決事項を記録する。フェーズを省略する場合は理由を報告する。
 
+### Pre-branch read-onlyゲート
+
+フェーズ1〜5では、親AgentとSubAgentを問わずリポジトリのファイル変更、commit、stash、branch作成、worktree作成、pushを行わない。コード修正が必要だと判明しても、対象ファイル、write scope、依存、テスト、完了条件へ記録して停止する。Issue本文・コメントなどGitHub上の計画記録だけが許可される。
+
+Issueレビューで🔴がなくなった後、フェーズ6を開始する。`git status --short --branch`がcleanであること、`git fetch origin`後の基点SHA、branch、worktreeを確認できない場合は、フェーズ7以降へ進まない。フェーズ6が、リポジトリへ変更を加えてよい最初のゲートである。
+
 ### 影響範囲・依存関係調査フェーズ
 
 Issue作成前に、Taskごとの影響範囲と依存関係を調査する。調査結果は実行計画とIssueへ反映し、次の表で追跡する。
@@ -83,9 +90,13 @@ Issue作成前に、Taskごとの影響範囲と依存関係を調査する。�
 
 調査できない対象は`未確認`としてリスクと停止条件へ記録し、推測で`confirmed`にしない。Issue、docs、実装、レビューでスコープ・依存・競合が変わった場合は、このフェーズへ戻って影響範囲を再調査する。
 
+このフェーズの成果物は実行計画、Issue、コメントなどの計画記録であり、リポジトリファイルではない。影響調査中に見つかったコード修正は、branch作成後の実装フェーズへ引き継ぐ。
+
 ### タスク分解・並列実行フェーズ
 
 チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。続けて影響範囲・依存関係を調査し、タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
+
+task-planner、impact-analyzer、issue-reviewerなどpre-branch担当はread-onlyで実行する。レビューのためにファイルを修正する必要がある場合も、Issueへ指摘を記録し、branch gate後のdocsまたは実装フェーズへ戻す。
 
 独立タスクは、`multi_agent_v1__spawn_agent`で実際にSubAgentを起動し、タスクごとに専用worktreeを作成させて並列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
 
@@ -93,7 +104,7 @@ Issue作成前に、Taskごとの影響範囲と依存関係を調査する。�
 
 Issueレビューで🔴がなくなり、Issueの作成条件が確定した後、docs作成または実装を開始する前に作業ブランチを作成する。プロジェクトに `gitflow-branching` Skillがある場合はそれを呼び出し、なければ次の手順を適用する。
 
-1. `git status --short --branch` で未コミット変更を確認する。既存変更を破棄・退避せず、競合する場合は停止する。
+1. `git status --short --branch` で未コミット変更を確認する。pre-branchで差分が発生している場合は、既存変更を破棄・退避せず、原因と担当Taskを確認して停止する。
 2. `git remote -v`、`git branch --all`、`git worktree list` でremote、基点ブランチ、既存ブランチ、worktreeを確認する。
 3. `git fetch origin` でリモートの最新状態を取得する。
 4. 通常の開発では `origin/develop` を最新の基点とする。必要に応じてローカルの `develop` を `git switch develop` と `git pull --ff-only origin develop` で更新する。`develop` がない場合は勝手に作成せず確認する。

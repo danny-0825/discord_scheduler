@@ -30,4 +30,10 @@ Issue作成前に、Taskごとにdocs、Skill、Agent、コード、テスト、
 
 `docs/context`の入口からregistry、core、task、external、generatedへ辿れることを確認する。正規docsの重複コピーがなく、外部情報に出典・取得日・確認日があり、Issue close後のTask contextがarchiveへ移る運用を確認する。
 
+## シナリオH: Pre-branch read-onlyゲート
+
+タスク分解・影響調査・Issueレビュー中に、リポジトリのstatus/diffが開始時から変わらないことを確認する。コード修正候補はIssueまたは実行計画へ記録し、Issueレビューで🔴がなくなった後にだけ最新基点からbranch/worktreeを作成する。branch gate後の専用worktreeで初めてdocs・コードの変更を許可する。
+
 このシナリオは、外部GitHubを変更しないdry-runとローカルGitスモークテストで検証する。Issue作成、push、PR、mergeを実環境で検証する場合は、ユーザーの明示的な許可と対象リポジトリを確認する。
+
+ローカル検証では`references/../scripts/pre_branch_gate_test.sh`も実行し、branch gate前のread-onlyとgate後のwriteを確認する。

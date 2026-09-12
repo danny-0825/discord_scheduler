@@ -25,3 +25,11 @@ OpenAIの公式ドキュメントでは、SubAgentは親セッション内で作
 6. 不要になったAgentは`multi_agent_v1__close_agent`で終了する。
 
 SubAgentへIssue・PR作成、コメント、commit、pushの権限を与える場合は、タスクごとに担当を1つだけ指定する。親AgentはSubAgentが実際に起動していることをAgent IDと状態で確認し、役割名だけでは代替しない。
+
+## フェーズ別の変更権限
+
+- pre-branch（タスク分解、影響調査、Issueレビュー）: read-only。リポジトリ、branch、worktree、commit、pushを変更しない。
+- branch gate: 親Agentが最新`origin/develop`を確認し、Task専用branch/worktreeとwrite scopeを確定する。
+- post-branch: docs-author、implementation-workerなどが割り当てられたworktree内だけを変更する。
+
+pre-branchで修正候補が見つかった場合は、Issue・実行計画へ記録してpost-branchへ引き継ぐ。初期調査のために先にコードを直すことは禁止する。

@@ -18,6 +18,8 @@
 - branchは最新の`origin/develop`から作成される
 - 1つのPRに独立した複数Issueを混在させていない
 - PR本文に正しいIssueのclosing keywordがある
+- branch作成前のstatus/diffがcleanで、pre-branchにリポジトリ変更・commit・pushがない
+- branch gateでIssueレビュー完了、最新`origin/develop`、専用branch/worktree、write scopeが確認されている
 
 ## 影響範囲・依存関係
 

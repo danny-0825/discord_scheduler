@@ -3,10 +3,10 @@
 ## 手順
 
 1. 対象がSkillかAgentか、または両方かを決める。
-2. Issue作成前に、Skill・Agentの参照元、関連Workflow、コード、テスト、設定、外部サービスへの影響範囲と依存関係を調査する。
+2. Issue作成前に、Skill・Agentの参照元、関連Workflow、コード、テスト、設定、外部サービスへの影響範囲と依存関係をread-onlyで調査する。修正候補はIssueへ記録し、branch作成前にファイルを変更しない。
 3. 影響範囲表へ更新要否、関連テスト、外部影響、依存・競合、担当・write scope、調査状態（`confirmed／未確認／対象外`）を記録する。
 4. 適用条件、対象外、入力、出力、権限、書き込み範囲、失敗時の扱いを要件定義に整理する。
-5. Skillの`SKILL.md`やAgent定義を変更し、必要な参照docsを`docs/skills/`または`docs/agents/`へ追加する。
+5. 最新基点から専用branch/worktreeを作成した後、Skillの`SKILL.md`やAgent定義を変更し、必要な参照docsを`docs/skills/`または`docs/agents/`へ追加する。
 6. 実行例または独立した検証で、意図しないタスクへ適用されないことを確認する。
 7. 対象範囲や依存関係が変わった場合は、影響範囲を再調査し、表とIssueを更新する。
 8. docsレビューと実装レビューを行い、更新履歴を追記する。
