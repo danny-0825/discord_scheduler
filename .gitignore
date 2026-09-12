@@ -14,3 +14,8 @@ build/
 
 # Test related files
 coverage/
+
+# Obsidian local workspace state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/appearance.json
