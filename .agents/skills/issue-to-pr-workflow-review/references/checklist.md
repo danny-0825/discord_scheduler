@@ -2,6 +2,9 @@
 
 ## タスク分解
 
+- 作業開始時にPlanモードが開始され、Task、依存、scope、担当、フェーズ完了条件が記録されている
+- Plan未確定のままIssue作成、SubAgent起動、branch/worktree作成、実装へ進んでいない
+
 - 独立性を変更ファイル、責務、完了条件、依存関係で説明できる
 - IssueごとにTask ID、目的、完了条件、親Issue・関連Issueが明示されている
 - Issue間の`depends_on`、`blocks`、`related`、`conflicts_with`が実行計画へ記録されている
@@ -38,6 +41,7 @@
 - 作成担当Agentとレビュー担当Agentが`validates`として記録されている
 - 各Agentに専用worktreeと書き込み範囲が渡されている
 - Agent間のread/write scopeと競合資源を比較している
+- Planのwrite scopeとforbidden scopeがgit diffおよびSubAgent報告と一致している
 - Agentの成果物が担当Issueの完了条件へ追跡できる
 - Issue／PR作成権限の担当が重複していない
 - 親Agentが成果物、テスト、差分を確認している

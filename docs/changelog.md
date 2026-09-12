@@ -17,6 +17,7 @@ updated: 2026-09-13
 
 | 日付 | 分類 | 概要 | 関連Issue/PR |
 | --- | --- | --- | --- |
+| 2026-09-13 | workflow / skill / agent | Issue-to-PR WorkflowでPlanモードを必須化し、Taskごとのread/write/forbidden scope、フェーズゲート、再計画条件を追加 | #42 / PR作成予定 |
 | 2026-09-13 | workflow / docs / skill / agent / other | docsをObsidian-firstで作成・参照する規約、Properties・Wikilink・backlink、docsテンプレート、表示検証を追加 | #40 / #41 |
 | 2026-09-13 | workflow / skill / agent / other | pre-branch read-onlyゲート、branch gate、post-branch write権限をWorkflow・Review Skill・SubAgent・Agent docsへ反映 | #38 / #39 |
 | 2026-09-13 | skill / workflow / other | BM25ベースの依存なしMarkdown検索Skill・CLI・検索設計とdocs探索ルールを追加 | #36 / #37 |

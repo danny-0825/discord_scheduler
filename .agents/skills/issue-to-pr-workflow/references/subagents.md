@@ -9,6 +9,7 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 ## 共通ルール
 
 - 親Agentはタスク分解、依存関係、SubAgent割当、外部変更の重複防止を管理する。
+- SubAgentを起動する前に、親AgentはCodexのPlanモードでTask、依存、read/write/forbidden scope、worktree、権限、完了条件、検証方法を確定する。Plan未確定の役割名だけでは起動できない。
 - pre-branch担当の`task-planner`、`impact-analyzer`、`issue-reviewer`はread-onlyで、リポジトリ変更・branch/worktree作成・commitを行わない。Issueコメント権限がある場合も、計画とレビューの記録だけを行う。
 - 親Agentは [relationship-and-independence.md](relationship-and-independence.md) の実行計画で、IssueとSubAgentの`implements`、レビューの`validates`、タスク間の依存・競合関係を管理する。
 - 各SubAgentには、Task ID、Issue番号（存在する場合）、入力、成果物、依存、読み取り範囲、書き込み範囲、実行方式を渡す。
@@ -16,6 +17,7 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 - コードまたはdocsを変更するSubAgentは、親Agentから割り当てられた一意のworktree pathとbranchを使い、編集前に最新の基点ブランチから自分のworktreeを作成する。親Agentの作業ディレクトリへ直接書き込まない。
 - docsまたはコードを変更するSubAgentは、フェーズ6のbranch/worktree作成完了と、担当Issueの🔴0件を親Agentから受け取るまで起動しない。
 - SubAgentは割り当てられた書き込み範囲を超えて変更しない。範囲外の変更が必要な場合は、理由と変更候補を親Agentへ返して停止する。
+- forbidden scope、外部変更scope、検証方法は起動時入力に含め、作業中に変更しない。変更が必要な場合はSubAgentを停止し、親AgentがPlanと独立性を再判定する。
 - SubAgentは別タスクのworktreeやブランチを操作しない。
 - SubAgent同士が同じファイル・設定・外部資源を変更する場合は並列起動せず、所有Taskを決めて他を依存タスクにする。
 - 1タスクのPR所有者は1つのAgentだけとし、独立タスクの変更を同じPRへまとめない。

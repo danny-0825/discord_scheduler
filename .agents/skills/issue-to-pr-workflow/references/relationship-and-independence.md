@@ -22,13 +22,15 @@ Issue、SubAgent、branch、worktree、commit、PRの対応と関係を親Agent�
 
 CodexにはIssue・PR・SubAgentを横断する公式JSON台帳形式はない。親Agentは、チャットの計画、Issue／PR本文、SubAgent threadのAgent ID・状態・結果を使って関係を追跡する。必要な対応表はMarkdownのタスク計画またはIssue／PRコメントに記録し、独自ファイルをCodexの必須設定として扱わない。
 
+実行開始時はCodexのPlanモードでこの対応表を作成・更新する。Planモードが使えない場合は、同じ内容をチャットまたはIssueへ記録してから進める。Plan未確定の状態ではIssue作成、SubAgent起動、branch/worktree作成、実装を完了扱いにしない。
+
 Issue作成前は仮Task ID、SubAgent起動前は仮Agent IDを使い、実体が作成された時点で置き換える。
 
-| Task | Issue | Agent(s) | 関係 | Depends on / Blocks | Read scope | Write scope | Impact scope | Impact status | Branch | Worktree | PR | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 | #101 | A1 | implements | なし | `docs/**` | `docs/foo/**` | code / tests / docs / external | confirmed / 未確認 / 対象外 | `feature/101-foo` | `../repo-worktrees/101-foo` | #201 | planned |
+| Task | Issue | Agent(s) | 関係 | Depends on / Blocks | Read scope | Write scope | Forbidden scope | Impact scope | Impact status | Branch | Worktree | PR | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| T1 | #101 | A1 | implements | なし | `docs/**` | `docs/foo/**` | `src/**`, 外部Project | code / tests / docs / external | confirmed / 未確認 / 対象外 | `feature/101-foo` | `../repo-worktrees/101-foo` | #201 | planned |
 
-最低限、次のIDを実行計画で対応付ける。影響範囲表の`Impact scope`と`Impact status`も、Issue作成前にTaskごとに埋める。
+最低限、次のIDを実行計画で対応付ける。影響範囲表の`Impact scope`と`Impact status`、read/write/forbidden scopeも、Issue作成前にTaskごとに埋める。
 
 `Task ID → Issue → SubAgent → branch → worktree → commit → PR`
 
@@ -56,5 +58,7 @@ Issue、Agent、PRの作成担当・レビュー担当・外部変更権限も�
 3. SubAgent完了時: write scope、commit、テスト、成果物、未解決依存を親Agentが照合する。
 4. PR作成前: 1 Issue・1 Task・1 PRの対応、closing keyword、変更範囲を確認する。
 5. マージ後: status、依存タスクの解除、worktree・branch削除を実行計画へ反映する。
+
+Planのscope、依存、完了条件が後続フェーズで変わった場合は、現在のTaskを保留し、影響調査・独立性判定・Issueレビューを再実行してから再開する。未更新の対応表と実際の差分が一致しない場合は`needs-review`とする。
 
 関係性が確認できない成果物は、完了扱いにせず`needs-review`または`blocked`として報告する。

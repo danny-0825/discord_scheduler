@@ -8,6 +8,23 @@
 
 タスク分解、実行計画、影響調査、Issue作成、Issueレビューはread-onlyフェーズである。リポジトリのコード、docs、Skill、Agent、設定、テストを変更せず、変更候補はTaskのwrite scope・完了条件・Issueへ記録する。最初のリポジトリ変更は、Issueレビュー完了後に最新`origin/develop`から作成した専用branch/worktreeで行う。
 
+## Planモードを使う実行契約
+
+作業開始時はCodexのPlanモードへ入り、フェーズ1〜15の実行計画を作成する。Planモードが使えない場合は、同じ計画をチャットまたはIssueへ記録するまで作業を開始しない。
+
+Planには次の情報をTaskごとに含める。
+
+- 目的、単独で検証可能な完了条件、Issue分割の理由
+- `depends_on`、`blocks`、`related`、`conflicts_with`とDAGの確認結果
+- read scope、write scope、forbidden scope、外部変更scope、関連テスト
+- 担当Agent、レビューAgent、権限、SubAgentの起動条件と状態
+- 基点SHA、branch、worktree、commit、PR
+- 各フェーズの入力、成果物、完了条件、検証方法、停止条件、次フェーズ
+
+Planはフェーズ開始時・終了時に更新し、`in_progress`は1フェーズだけにする。Task、scope、担当、依存、完了条件のいずれかが未確定なら、Issue作成、SubAgent起動、branch/worktree作成、実装を禁止する。
+
+write scopeは許可する最小範囲、forbidden scopeは変更禁止範囲として具体的なパスまたはパターンで定義する。scope外の変更が必要になった場合は停止し、影響調査と独立性判定へ戻ってPlan・Issue・関係表を更新し、レビュー後に再開する。
+
 ## 分解判断
 
 AIが最終判断する。ユーザーに分割判断だけを再確認せず、曖昧さやリスクが作業結果を変える場合だけ確認する。
@@ -36,11 +53,13 @@ AIが最終判断する。ユーザーに分割判断だけを再確認せず、
 | 目的 | タスク単独の目的 |
 | 完了条件 | 単独で検証できる条件 |
 | 書き込み範囲 | SubAgentが変更してよいファイル・ディレクトリ |
+| 禁止範囲 | SubAgentが変更してはいけないファイル・ディレクトリ、外部資源 |
 | 読み取り範囲 | 参照してよい関連コード・docs |
 | 依存タスク | 前提となるタスクIDと依存理由 |
 | 競合資源 | 共通ファイル、API、DB、設定、環境 |
 | 関係 | `depends_on`、`blocks`、`related`、`conflicts_with`の対象 |
 | 実行方式 | 並列または直列 |
+| 検証方法 | 完了条件とscopeを確認する具体的なテスト・レビュー |
 
 書き込み範囲は、この判定で決めたタスク固有の契約である。実装SubAgentが範囲外を変更する必要が生じた場合は、独立性判定をやり直してから進める。Issue、SubAgent、branch、worktree、PRを一意に対応付けられない場合も、起動前に判定をやり直す。
 
@@ -104,6 +123,8 @@ Issue作成前に、最低限次の表を内部計画として作成する。
 Issue作成、コメント、commit、push、PR作成の担当Agentは各タスクで1つだけにする。
 
 実行計画には、Task ID、Issue番号、Agent ID、関係、依存・競合、write scope、branch、worktree、commit、PR、statusを記録する。親AgentはSubAgent起動前と完了時に計画を照合する。
+
+Planの実行中に対象、scope、依存、競合、完了条件が変わった場合は、そのフェーズを保留して影響範囲調査、Plan、Issue、関係表を更新する。更新前の計画に基づく変更やcommitは行わない。
 
 ## SubAgent実行計画
 
