@@ -1,4 +1,4 @@
 interface:
   display_name: "GitFlow Branching"
   short_description: "Apply GitFlow branch conventions in this project"
-  default_prompt: "Use $gitflow-branching to plan or execute GitFlow branch operations for this project."
+  default_prompt: "Use $gitflow-branching to plan or execute GitFlow branch operations. Always fetch the latest origin/develop before creating a branch, use an isolated worktree for parallel tasks, and remove the worktree after the PR is merged."

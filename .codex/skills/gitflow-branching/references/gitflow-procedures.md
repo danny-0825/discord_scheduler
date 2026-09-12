@@ -2,7 +2,16 @@
 
 ## 作業開始
 
-feature または bugfix は `develop` から作成する。基点がローカルにない場合は、remote の `origin/develop` を確認してから作成する。
+feature または bugfix は、必ず最新化した `origin/develop` から作成する。複数タスクを並列実行する場合はタスクごとに専用worktreeを使う。
+
+```bash
+git status --short --branch
+git fetch origin
+git worktree add ../discord_scheduler-worktrees/123-add-reminders \
+  -b feature/123-add-reminders origin/develop
+```
+
+単一worktreeで作業する場合は、未コミット変更がないことを確認してから次を実行する。
 
 ```bash
 git switch develop
@@ -10,7 +19,13 @@ git pull --ff-only origin develop
 git switch -c feature/123-add-reminders
 ```
 
-`git pull` は未コミット変更がなく、対象 remote が確認できる場合だけ使う。Issue 番号がない場合は `feature/add-reminders` のように簡潔な説明を使う。
+Issue番号がない場合は `feature/add-reminders` のように簡潔な説明を使う。Issue番号がある場合は必ずブランチ名に含める。
+
+PRがマージされた後、未コミット変更がないことを確認して専用worktreeを削除する。
+
+```bash
+git worktree remove ../discord_scheduler-worktrees/123-add-reminders
+```
 
 ## リリース準備
 
@@ -31,10 +46,10 @@ dart test
 ```bash
 git switch main
 git pull --ff-only origin main
-git merge --no-ff release/1.2.0 -m "Merge release/1.2.0"
+git merge --no-ff release/1.2.0 -m "リリース: 1.2.0をmainへマージ"
 git tag -a v1.2.0 -m "Release v1.2.0"
 git switch develop
-git merge --no-ff release/1.2.0 -m "Merge release/1.2.0 into develop"
+git merge --no-ff release/1.2.0 -m "リリース: 1.2.0をdevelopへマージ"
 ```
 
 ## 緊急修正
@@ -47,10 +62,10 @@ git pull --ff-only origin main
 git switch -c hotfix/1.2.1
 # pubspec.yaml の version: を 1.2.1 に更新し、検証する
 git switch main
-git merge --no-ff hotfix/1.2.1 -m "Merge hotfix/1.2.1"
+git merge --no-ff hotfix/1.2.1 -m "緊急修正: 1.2.1をmainへマージ"
 git tag -a v1.2.1 -m "Release v1.2.1"
 git switch develop
-git merge --no-ff hotfix/1.2.1 -m "Merge hotfix/1.2.1 into develop"
+git merge --no-ff hotfix/1.2.1 -m "緊急修正: 1.2.1をdevelopへマージ"
 ```
 
 ## 競合・例外
