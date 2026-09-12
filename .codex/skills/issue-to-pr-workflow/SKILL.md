@@ -7,7 +7,7 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 
 ## 目的
 
-ユーザーの要求をIssue、docs、実装、PRの順に具体化し、各段階でレビューと修正を行う。フェーズの詳細は [phases.md](references/phases.md) を参照する。
+ユーザーの要求をIssue、docs、実装、PRの順に具体化し、各段階でレビューと修正を行う。フェーズの詳細は [phases.md](references/phases.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
 
 レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
 
@@ -28,13 +28,15 @@ description: Issueの作成、レビュー、実装、commit、push、PR作成�
 - IssueレビューおよびPRレビューの観点
 - PRのAssignees、Labels、Milestone、Development、Reviewers
 
+IssueまたはPRのLabelsを扱う場合は、[labels.md](references/labels.md) の分類・付与ルールを適用する。GitHubのIssueラベルとGitのリリースタグ（`v<semver>`）を混同しない。
+
 Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成、PRコメント、PR属性変更は外部または共有状態を変更する。対象、変更内容、必要な権限を確認してから実行する。
 
 ## フェーズ実行
 
 フェーズ一覧と各フェーズの入力・成果物・完了条件は [phases.md](references/phases.md) に定義する。通常は次の順で実行する。
 
-1. Issue作成
+1. Issue作成（Labelsを付与）
 2. Issueレビューと修正
 3. 作業ブランチ作成
 4. docs作成
@@ -43,7 +45,7 @@ Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成�
 7. 実装レビューと修正
 8. commit
 9. push
-10. PR作成
+10. PR作成（IssueのLabelsを継承・確認）
 11. PRレビューと修正
 
 各フェーズの開始時に前フェーズの完了条件を確認し、終了時に成果物、レビュー結果、テスト結果、未解決事項を記録する。フェーズを省略する場合は理由を報告する。
