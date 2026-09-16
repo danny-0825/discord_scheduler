@@ -38,35 +38,25 @@ Codexの公式エージェントモデルでは、SubAgentは親Agentのセッ�
 
 SubAgentが起動できない場合は、役割名だけを記録して起動済みと扱わず、親Agentが直列実行するか、権限不足として報告する。
 
-## 正規Custom Agent role
+## Custom Agentとの境界
+
+正規roleの名前、起動前提、read/write/forbidden scope、入力、返却形式、禁止操作、検証責務は`.codex/agents/`が所有する。このreferenceはそれらを再記載しない。親Agentは割り当てるroleを実行計画に記録し、実際に利用可能なコラボレーション能力で起動できるかだけを確認する。
+
+互換確認用の正規role識別子は次の7つである。詳細な指示はここへ複製しない。
 
 ### task_planner
 
-チャット入力をタスクへ分解し、Issue単位、完了条件、書き込み範囲、依存関係、並列・直列実行を決める。ファイル変更や外部サービスの変更は行わない。
-
 ### impact_analyzer
-
-Issue作成前に、docs、context、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスの影響と未確認事項を調査する。変更候補と検証方法を親Agentへ返し、ファイル・外部サービスを変更しない。
 
 ### issue_reviewer
 
-指定されたIssueをレビューし、Issue番号を接頭辞とする指摘IDでレビュー結果を作る。🔴がなくなるまで再レビューする。Issueコメント権限を付与された場合だけコメントを投稿する。
-
 ### docs_author
-
-指定されたIssueと書き込み範囲に基づき、日本語docsを作成する。仕様、設計、利用方法、エラー、制約、完了条件との対応を含める。
 
 ### docs_reviewer
 
-指定されたdocsとIssueをレビューし、指摘ID付きの結果を作る。🔴がなくなるまで再レビューする。docsまたはIssueへのコメント権限を付与された場合だけ投稿する。
-
 ### implementation_worker
 
-指定されたworktreeと書き込み範囲内で実装、テスト、静的解析を行う。範囲外の変更を行わず、テスト結果と未解決事項を返す。commit・pushは明示的に担当指定された場合だけ行う。
-
 ### workflow_reviewer
-
-Task、Issue、Agent、branch、worktree、commit、PRの対応と、利用可能なコラボレーション機能で実行できるかをレビューする。ファイル・外部サービスを変更しない。
 
 ## 権限の付与
 

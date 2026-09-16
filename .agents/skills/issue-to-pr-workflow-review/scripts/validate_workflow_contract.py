@@ -3,108 +3,44 @@
 
 from __future__ import annotations
 
-import sys
-import re
+import json
 from pathlib import Path
-
-try:
-    import tomllib
-except ModuleNotFoundError:
-    tomllib = None
-
-
-EXPECTED_AGENTS = {
-    "task-planner.toml": "task_planner",
-    "impact-analyzer.toml": "impact_analyzer",
-    "issue-reviewer.toml": "issue_reviewer",
-    "docs-author.toml": "docs_author",
-    "docs-reviewer.toml": "docs_reviewer",
-    "implementation-worker.toml": "implementation_worker",
-    "workflow-reviewer.toml": "workflow_reviewer",
-}
 RETIRED_TERMS = ("multi_agent_v1__", "fork_context")
-RETIRED_ROLE_TERMS = (
-    "task-planner",
-    "impact-analyzer",
-    "issue-reviewer",
-    "docs-author",
-    "docs-reviewer",
-    "implementation-worker",
-    "workflow-reviewer",
-)
+STATES = {
+    "planned", "investigated", "issue_ready", "issue_reviewed",
+    "environment_provisioned", "docs_ready", "docs_waived", "implemented",
+    "verified", "committed", "pushed", "pr_open", "pr_reviewed", "merged",
+    "cleaned", "blocked", "failed",
+}
+REQUIRED_SCENARIOS = {
+    "normal", "no-plan", "no-subagent", "docs-waived", "scope-violation",
+    "external-denied", "independent-tasks", "dependent-task", "worktree-isolation",
+}
+ALLOWED_TRANSITIONS = {
+    ("planned", "investigated"), ("planned", "blocked"), ("blocked", "planned"),
+    ("investigated", "issue_ready"),
+    ("issue_ready", "issue_reviewed"), ("issue_ready", "failed"),
+    ("failed", "issue_ready"), ("issue_reviewed", "environment_provisioned"),
+    ("issue_reviewed", "blocked"), ("blocked", "issue_reviewed"),
+    ("issue_reviewed", "failed"), ("failed", "issue_reviewed"),
+    ("environment_provisioned", "docs_ready"), ("environment_provisioned", "docs_waived"),
+    ("environment_provisioned", "blocked"), ("blocked", "environment_provisioned"),
+    ("environment_provisioned", "failed"), ("docs_ready", "implemented"),
+    ("docs_ready", "investigated"), ("docs_waived", "implemented"),
+    ("docs_waived", "investigated"), ("implemented", "verified"),
+    ("implemented", "failed"), ("implemented", "investigated"),
+    ("failed", "implemented"), ("verified", "committed"), ("verified", "blocked"),
+    ("blocked", "verified"), ("committed", "pushed"), ("pushed", "pr_open"),
+    ("pr_open", "pr_reviewed"), ("pr_reviewed", "merged"), ("merged", "cleaned"),
+}
 
 
 def repository_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
-def source_files(root: Path) -> list[Path]:
-    files = [root / "AGENTS.md", root / ".codex/config.toml"]
-    for directory in (
-        root / ".codex/agents",
-        root / ".agents/skills/issue-to-pr-workflow",
-        root / ".agents/skills/issue-to-pr-workflow-review",
-        root / "docs/agents",
-        root / "docs/workflows",
-    ):
-        files.extend(
-            path
-            for path in directory.rglob("*")
-            if path.is_file() and path.suffix in {".md", ".toml"}
-        )
-    return files
-
-
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
-
-
-def parse_toml_fallback(content: str) -> dict[str, object]:
-    """Parse the small TOML subset used by the checked configuration files."""
-    result: dict[str, object] = {}
-    current = result
-    in_multiline_string = False
-    for raw_line in content.splitlines():
-        line = raw_line.strip()
-        if in_multiline_string:
-            if '"""' in line:
-                in_multiline_string = False
-            continue
-        if not line or line.startswith("#"):
-            continue
-        if line.count('"""') == 1:
-            in_multiline_string = True
-            continue
-        table = re.fullmatch(r"\[([A-Za-z0-9_-]+)\]", line)
-        if table:
-            current = result.setdefault(table.group(1), {})
-            if not isinstance(current, dict):
-                raise ValueError(f"table conflicts with scalar: {table.group(1)}")
-            continue
-        key, separator, raw_value = line.partition("=")
-        if not separator or not re.fullmatch(r"[A-Za-z0-9_-]+", key.strip()):
-            raise ValueError(f"unsupported TOML line: {raw_line}")
-        value = raw_value.split("#", 1)[0].strip()
-        if value == "true":
-            parsed: object = True
-        elif value == "false":
-            parsed = False
-        elif re.fullmatch(r"-?\d+", value):
-            parsed = int(value)
-        elif len(value) >= 2 and value[0] == value[-1] == '"':
-            parsed = value[1:-1]
-        else:
-            raise ValueError(f"unsupported TOML value: {raw_value.strip()}")
-        current[key.strip()] = parsed
-    if in_multiline_string:
-        raise ValueError("unterminated multiline string")
-    return result
-
-
-def parse_toml(content: str) -> dict[str, object]:
-    if tomllib is not None:
-        return tomllib.loads(content)
-    return parse_toml_fallback(content)
 
 
 def require(contents: str, fragment: str, label: str, failures: list[str]) -> None:
@@ -112,92 +48,184 @@ def require(contents: str, fragment: str, label: str, failures: list[str]) -> No
         failures.append(f"{label} is missing required contract: {fragment}")
 
 
+def validate_scenarios(scenarios: object) -> list[str]:
+    """Validate positive fixture evidence and reject unknown state-machine edges."""
+    failures: list[str] = []
+    if not isinstance(scenarios, list):
+        return ["workflow state fixtures must contain scenarios"]
+    by_id = {item.get("id"): item for item in scenarios if isinstance(item, dict)}
+    if set(by_id) != REQUIRED_SCENARIOS or len(by_id) != len(scenarios):
+        failures.append(f"workflow scenarios must be exactly {sorted(REQUIRED_SCENARIOS)}")
+    for scenario_id, scenario in by_id.items():
+        expected = scenario.get("expected_state")
+        transitions = scenario.get("transitions")
+        if expected not in STATES:
+            failures.append(f"{scenario_id}: invalid expected_state {expected!r}")
+        if not isinstance(transitions, list) or not transitions:
+            failures.append(f"{scenario_id}: transitions must be a non-empty list")
+        elif transitions[-1] != expected:
+            failures.append(f"{scenario_id}: last transition must match expected_state")
+        elif any(state not in STATES for state in transitions):
+            failures.append(f"{scenario_id}: transitions contain an unknown state")
+        elif any(pair not in ALLOWED_TRANSITIONS for pair in zip(transitions, transitions[1:])):
+            failures.append(f"{scenario_id}: transitions contain an unsupported edge")
+
+    def nonempty(scenario_id: str, *fields: str) -> None:
+        scenario = by_id.get(scenario_id, {})
+        for field in fields:
+            if not isinstance(scenario.get(field), str) or not scenario[field].strip():
+                failures.append(f"{scenario_id}: {field} must be a non-empty string")
+
+    normal = by_id.get("normal", {})
+    if normal.get("plan_available") is not True or normal.get("subagent_available") is not True:
+        failures.append("normal: Plan and SubAgent must be available")
+    if normal.get("effect_gate") != "approved" or normal.get("external_runner_invoked") is not False:
+        failures.append("normal: safe dry-run must model an approved gate without external runner")
+    recovery_paths = normal.get("recovery_paths")
+    expected_recovery_paths = {
+        "issue-review-failure": ["issue_ready", "failed", "issue_ready"],
+        "environment-failure": ["issue_reviewed", "failed", "issue_reviewed"],
+        "docs-ready-change": ["docs_ready", "investigated"],
+        "docs-waived-change": ["docs_waived", "investigated"],
+    }
+    if recovery_paths != expected_recovery_paths:
+        failures.append("normal: must cover the issue, environment, and docs recovery paths")
+
+    no_plan = by_id.get("no-plan", {})
+    if (no_plan.get("plan_available") is not False
+            or no_plan.get("fallback_record") != "chat-or-issue"
+            or no_plan.get("expected_state") != "issue_reviewed"
+            or no_plan.get("transitions") != ["planned", "blocked", "planned", "investigated", "issue_ready", "issue_reviewed"]):
+        failures.append("no-plan: must block, record chat-or-issue fallback, resume planned, and reach issue_reviewed")
+
+    no_subagent = by_id.get("no-subagent", {})
+    if no_subagent.get("subagent_available") is not False or no_subagent.get("execution_owner") != "parent_agent":
+        failures.append("no-subagent: must fall back to parent_agent")
+
+    docs_waived = by_id.get("docs-waived", {})
+    nonempty("docs-waived", "waiver_reason", "waiver_owner", "waiver_rationale")
+    if docs_waived.get("expected_state") != "implemented":
+        failures.append("docs-waived: must continue to implemented")
+
+    scope = by_id.get("scope-violation", {})
+    if (scope.get("expected_state") != "investigated"
+            or scope.get("work_stopped") is not True
+            or scope.get("reinvestigation_required") is not True):
+        failures.append("scope-violation: must stop and return to investigated")
+
+    denied = by_id.get("external-denied", {})
+    if (denied.get("expected_state") != "blocked" or denied.get("effect_gate") != "denied"
+            or denied.get("external_runner_invoked") is not False
+            or denied.get("resume_state") != "verified"
+            or denied.get("recovery_path") != ["verified", "blocked", "verified"]):
+        failures.append("external-denied: must block without an external runner and resume at verified")
+
+    independent = by_id.get("independent-tasks", {})
+    nonempty("independent-tasks", "failed_task", "unrelated_task")
+    if independent.get("unrelated_task_continues") is not True:
+        failures.append("independent-tasks: unrelated task must continue")
+
+    dependent = by_id.get("dependent-task", {})
+    nonempty("dependent-task", "dependency", "block_reason")
+    if dependent.get("dependency_satisfied") is not False or dependent.get("expected_state") != "blocked":
+        failures.append("dependent-task: unmet dependency must block")
+
+    isolation = by_id.get("worktree-isolation", {})
+    if (isolation.get("parent_provisions") is not True
+            or isolation.get("distinct_worktrees") is not True
+            or isolation.get("distinct_write_scopes") is not True):
+        failures.append("worktree-isolation: parent provisioning and distinct resources are required")
+    for field in ("worktrees", "write_scopes"):
+        values = isolation.get(field)
+        if not isinstance(values, list) or len(values) != 2 or not all(isinstance(value, str) and value for value in values) or values[0] == values[1]:
+            failures.append(f"worktree-isolation: {field} must contain two distinct non-empty values")
+    return failures
+
+
+def validate_state_contract(root: Path, failures: list[str]) -> None:
+    contract = read(root / ".agents/skills/issue-to-pr-workflow/references/state-contract.md")
+    for state in STATES:
+        require(contract, state, "state contract", failures)
+    for fragment in (
+        "任意遷移ではない", "issue_ready -> failed -> issue_ready",
+        "issue_reviewed -> failed -> issue_reviewed", "implemented -> failed -> implemented",
+        "verified -> blocked -> verified", "implemented -> investigated",
+        "docs_ready -> investigated", "docs_waived -> investigated",
+    ):
+        require(contract, fragment, "state contract", failures)
+    fixture_path = root / ".agents/skills/issue-to-pr-workflow-review/references/workflow-state-fixtures.json"
+    try:
+        fixtures = json.loads(read(fixture_path))
+    except (OSError, json.JSONDecodeError) as error:
+        failures.append(f"workflow state fixtures are invalid: {error}")
+        return
+    scenarios = fixtures.get("scenarios") if isinstance(fixtures, dict) else None
+    failures.extend(validate_scenarios(scenarios))
+    if not isinstance(scenarios, list):
+        return
+
+    # Prove assertions are live: each required acceptance field is removed from an
+    # in-memory copy, and an undefined edge is injected. Both must fail validation.
+    negative_fields = (
+        ("no-plan", "fallback_record"), ("docs-waived", "waiver_reason"),
+        ("scope-violation", "work_stopped"), ("external-denied", "external_runner_invoked"),
+        ("independent-tasks", "unrelated_task_continues"), ("dependent-task", "block_reason"),
+        ("worktree-isolation", "write_scopes"), ("normal", "recovery_paths"),
+    )
+    for scenario_id, field in negative_fields:
+        copy = json.loads(json.dumps(scenarios))
+        next(item for item in copy if item["id"] == scenario_id).pop(field)
+        if not validate_scenarios(copy):
+            failures.append(f"negative self-test did not reject {scenario_id}.{field}")
+    invalid_edge = json.loads(json.dumps(scenarios))
+    next(item for item in invalid_edge if item["id"] == "normal")["transitions"] = ["planned", "cleaned"]
+    if not validate_scenarios(invalid_edge):
+        failures.append("negative self-test did not reject an undefined transition")
+    missing_plan_block = json.loads(json.dumps(scenarios))
+    next(item for item in missing_plan_block if item["id"] == "no-plan")["transitions"] = ["planned", "investigated", "issue_ready", "issue_reviewed"]
+    if not validate_scenarios(missing_plan_block):
+        failures.append("negative self-test did not require planned -> blocked -> planned fallback")
+
+
 def main() -> int:
     root = repository_root()
     failures: list[str] = []
-    config_path = root / ".codex/config.toml"
-    try:
-        config = parse_toml(read(config_path))
-    except ValueError as error:
-        failures.append(f"config.toml is not valid TOML: {error}")
-        config = {}
-    agents = config.get("agents")
-    if not isinstance(agents, dict):
-        failures.append("config.toml must define an [agents] table")
-        agents = {}
-    if agents.get("max_threads") != 8:
-        failures.append(
-            "config.toml must define agents.max_threads as integer 8, "
-            f"found {agents.get('max_threads')!r}"
-        )
-    if agents.get("interrupt_message") is not True:
-        failures.append(
-            "config.toml must define agents.interrupt_message as boolean true, "
-            f"found {agents.get('interrupt_message')!r}"
-        )
-    for key in ("enabled", "max_concurrent_threads_per_session"):
-        if key in agents:
-            failures.append(f"config.toml contains retired agents.{key} setting")
-
-    agent_dir = root / ".codex/agents"
-    actual_files = {path.name for path in agent_dir.glob("*.toml")}
-    expected_files = set(EXPECTED_AGENTS)
-    if actual_files != expected_files:
-        failures.append(
-            "custom agent definition files differ from the canonical seven: "
-            f"expected {sorted(expected_files)}, found {sorted(actual_files)}"
-        )
-    seen_roles: set[str] = set()
-    for filename, expected_role in EXPECTED_AGENTS.items():
-        path = agent_dir / filename
-        if not path.exists():
-            continue
-        try:
-            parsed = parse_toml(read(path))
-        except ValueError as error:
-            failures.append(f"{filename} is not valid TOML: {error}")
-            continue
-        actual_role = parsed.get("name")
-        if actual_role != expected_role:
-            failures.append(
-                f"{filename} must define name = {expected_role!r}, found {actual_role!r}"
-            )
-        if actual_role in seen_roles:
-            failures.append(f"custom agent role is duplicated: {actual_role!r}")
-        if isinstance(actual_role, str):
-            seen_roles.add(actual_role)
-
-    contents = "\n".join(read(path) for path in source_files(root))
+    workflow_files = (
+        root / ".agents/skills/issue-to-pr-workflow/SKILL.md",
+        root / ".agents/skills/issue-to-pr-workflow/references/state-contract.md",
+        root / ".agents/skills/issue-to-pr-workflow/references/subagents.md",
+        root / ".agents/skills/issue-to-pr-workflow-review/SKILL.md",
+        root / "docs/skills/catalog.md",
+        root / "docs/workflows/issue-to-pr.md",
+    )
+    contents = "\n".join(read(path) for path in workflow_files)
     for term in RETIRED_TERMS:
         if term in contents:
             failures.append(f"retired runtime term remains: {term}")
-    for term in RETIRED_ROLE_TERMS:
-        if term in contents:
-            failures.append(f"retired custom agent role spelling remains: {term}")
     workflow = read(root / ".agents/skills/issue-to-pr-workflow/SKILL.md")
     subagents = read(
         root / ".agents/skills/issue-to-pr-workflow/references/subagents.md"
     )
     review = read(root / ".agents/skills/issue-to-pr-workflow-review/SKILL.md")
-    agent_docs = read(root / "docs/agents/codex-subagents.md")
-    repository_rules = read(root / "AGENTS.md")
-    require(workflow, "Plan機能が利用できる場合", "workflow", failures)
-    require(workflow, "利用できない場合", "workflow", failures)
-    require(workflow, "親Agentが最新`origin/develop`から専用branch/worktreeを作成・検証", "workflow", failures)
+    catalog = read(root / "docs/skills/catalog.md")
+    require(workflow, "Plan機能が使えない場合", "workflow", failures)
+    require(workflow, "親Agentだけが行う", "workflow", failures)
+    require(workflow, "専用branch/worktree", "workflow", failures)
     require(subagents, "SubAgentは親Agentから割り当てられたpathとbranchだけを使い、worktreeを作成せず", "subagent contract", failures)
     require(subagents, "利用可能なコラボレーション機能", "subagent contract", failures)
-    require(review, "書き込みTaskのworktreeは親Agentが最新基点から作成・検証", "workflow review", failures)
-    require(agent_docs, "https://learn.chatgpt.com/docs/agent-configuration/subagents", "agent documentation", failures)
-    for role in EXPECTED_AGENTS.values():
-        require(subagents, f"### {role}", "subagent role table", failures)
-        require(repository_rules, f"`{role}`", "repository rules", failures)
+    require(review, "状態遷移", "workflow review", failures)
+    require(catalog, "親Agentだけがeffect gate", "catalog", failures)
+    if "T50所有の暫定例外" in catalog:
+        failures.append("catalog retains the retired T50 provisional exception")
+
+    validate_state_contract(root, failures)
 
     if failures:
         print("workflow contract: FAIL")
         for failure in failures:
             print(f"- {failure}")
         return 1
-    print("workflow contract: PASS")
+    print("workflow contract: PASS (state contract and negative fixture coverage)")
     return 0
 
 

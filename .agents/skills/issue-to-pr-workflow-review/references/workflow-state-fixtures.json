@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "purpose": "Safe dry-run fixtures. They model evidence and never call Git or GitHub.",
+  "scenarios": [
+    {
+      "id": "normal",
+      "expected_state": "cleaned",
+      "transitions": ["planned", "investigated", "issue_ready", "issue_reviewed", "environment_provisioned", "docs_ready", "implemented", "verified", "committed", "pushed", "pr_open", "pr_reviewed", "merged", "cleaned"],
+      "plan_available": true,
+      "subagent_available": true,
+      "effect_gate": "approved",
+      "external_runner_invoked": false,
+      "recovery_paths": {
+        "issue-review-failure": ["issue_ready", "failed", "issue_ready"],
+        "environment-failure": ["issue_reviewed", "failed", "issue_reviewed"],
+        "docs-ready-change": ["docs_ready", "investigated"],
+        "docs-waived-change": ["docs_waived", "investigated"]
+      }
+    },
+    {
+      "id": "no-plan",
+      "expected_state": "issue_reviewed",
+      "transitions": ["planned", "blocked", "planned", "investigated", "issue_ready", "issue_reviewed"],
+      "plan_available": false,
+      "fallback_record": "chat-or-issue"
+    },
+    {
+      "id": "no-subagent",
+      "expected_state": "verified",
+      "transitions": ["planned", "investigated", "issue_ready", "issue_reviewed", "environment_provisioned", "docs_waived", "implemented", "verified"],
+      "subagent_available": false,
+      "execution_owner": "parent_agent"
+    },
+    {
+      "id": "docs-waived",
+      "expected_state": "implemented",
+      "transitions": ["environment_provisioned", "docs_waived", "implemented"],
+      "waiver_reason": "No user-facing behavior or durable documentation changes",
+      "waiver_owner": "parent_agent",
+      "waiver_rationale": "The implementation changes only internal workflow validation"
+    },
+    {
+      "id": "scope-violation",
+      "expected_state": "investigated",
+      "transitions": ["implemented", "investigated"],
+      "work_stopped": true,
+      "reinvestigation_required": true
+    },
+    {
+      "id": "external-denied",
+      "expected_state": "blocked",
+      "transitions": ["verified", "blocked"],
+      "effect_gate": "denied",
+      "external_runner_invoked": false,
+      "resume_state": "verified",
+      "recovery_path": ["verified", "blocked", "verified"]
+    },
+    {
+      "id": "independent-tasks",
+      "expected_state": "verified",
+      "transitions": ["implemented", "failed", "implemented", "verified"],
+      "failed_task": "T1",
+      "unrelated_task": "T2",
+      "unrelated_task_continues": true
+    },
+    {
+      "id": "dependent-task",
+      "expected_state": "blocked",
+      "transitions": ["issue_reviewed", "blocked"],
+      "dependency": "T1 merged and latest base provisioned",
+      "dependency_satisfied": false,
+      "block_reason": "T1 is not merged on the current base"
+    },
+    {
+      "id": "worktree-isolation",
+      "expected_state": "environment_provisioned",
+      "transitions": ["issue_reviewed", "environment_provisioned"],
+      "parent_provisions": true,
+      "distinct_worktrees": true,
+      "distinct_write_scopes": true,
+      "worktrees": ["../repo-worktrees/101", "../repo-worktrees/102"],
+      "write_scopes": ["docs/workflows/**", "docs/skills/**"]
+    }
+  ]
+}

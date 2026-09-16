@@ -92,6 +92,8 @@ def main() -> None:
     skills_root = root / ".agents" / "skills"
     catalog_path = skills_root / "catalog-routing-fixtures.json"
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    if "T50所有の暫定例外" in json.dumps(catalog, ensure_ascii=False):
+        fail("catalog must not retain the T50 provisional Workflow exception")
     if catalog.get("schema_version") != 1:
         fail("catalog schema_version must be 1")
 
@@ -161,6 +163,11 @@ def main() -> None:
     if names != installed:
         fail(f"catalog and installed Skill directories disagree: catalog-only={sorted(names - installed)}, installed-only={sorted(installed - names)}")
     catalog_by_name = {entry["name"]: entry for entry in entries}
+    workflow_entry = catalog_by_name["issue-to-pr-workflow"]
+    if "親Agent所有" not in workflow_entry["implicit_exception"]:
+        fail("issue-to-pr-workflow implicit exception must state parent ownership")
+    if "拒否時は実行しない" not in workflow_entry["implicit_exception"]:
+        fail("issue-to-pr-workflow implicit exception must state deny behavior")
 
     explicit_entries = {entry["name"] for entry in entries if entry["invocation"] == "explicit-only"}
     if explicit_entries != EXPLICIT_ONLY_SKILLS:

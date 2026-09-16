@@ -1,243 +1,41 @@
 ---
 name: issue-to-pr-workflow
-description: Issueの作成、レビュー、実装、commit、push、PR作成、PRレビュー、修正までを一貫して進める。GitHub上のIssue/PRを起点に、完了条件とレビュー指摘を管理する開発フローで使用する。
+description: 開発要求を状態契約に沿ってIssueからPRまで進める。Task分解、read-only調査、親Agentによる環境準備、委譲、検証、外部操作のgateが必要なときに使用する。
 ---
 
 # Issue to PR Workflow
 
-## 目的
+## 役割
 
-チャットで受けた作業要望をタスクに分解し、独立性と依存関係を判定したうえで、Issue、docs、実装、PRの順に進める。Issue、SubAgent、branch、worktree、commit、PRの関係は [relationship-and-independence.md](references/relationship-and-independence.md) の実行計画で管理する。フェーズの詳細は [phases.md](references/phases.md)、タスク分解と並列実行は [task-decomposition.md](references/task-decomposition.md)、SubAgentの実行ライフサイクル・役割・権限は [subagents.md](references/subagents.md)、GitHubラベルの分類と付与ルールは [labels.md](references/labels.md) を参照する。
+このSkillは開発要求の主routeであり、唯一の実行状態契約である。恒久原則は`AGENTS.md`、Task固有の役割I/Oは`.codex/agents/`、利用者向けの短い概要は[docs/workflows/issue-to-pr.md](../../../docs/workflows/issue-to-pr.md)に置く。この本文はそれらの手順を複製しない。
 
-レビューは、対象に応じて次の独立したSkillを呼び出せる。呼び出さずにこのSkill自身でレビューしてもよい。
+実行前に[状態契約](references/state-contract.md)を読み、Task、依存、scope、担当、完了条件をPlanへ記録する。Plan機能が使えない場合は、同じ必須項目をチャットまたはIssueへ構造化して記録する。どちらもない場合は`planned`のまま停止する。
 
-ワークフロー自体を変更・検証するときは [issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) を使用する。特に、複数Issueへの分割、並列SubAgent、複数worktreeまたは複数PRが関係する場合は、実行前後にこのレビューSkillを呼び出す。
+## 必須gate
 
-- Issue: [issue-review](../issue-review/SKILL.md)
-- docs: [docs-review](../docs-review/SKILL.md)
-- 実装: [implementation-review](../implementation-review/SKILL.md)
+- `issue_reviewed`まではread-onlyである。調査・Issue作成・Issueレビューの成果物はPlanまたはIssueへ記録し、リポジトリ、branch、worktree、commit、pushは変更しない。
+- `environment_provisioned`への遷移は親Agentだけが行う。親AgentはGitの更新・基点確認・専用branch/worktree作成を実行できる能力を確認し、基点SHA、path、branch、write scopeを記録してから割り当てる。
+- SubAgent機能を使えない場合は起動済みと扱わず、親Agentが同じscopeで直列実行する。利用可能な場合だけ実際に起動し、結果とscopeを親が照合する。
+- commit、push、Issue/PR作成、コメント、マージ、cleanupは外部effectであり、親Agentだけが[effect gate](references/state-contract.md#external-effect-gate)を通して実行する。対象・内容・権限が揃わない、または拒否された場合はrunnerを呼ばず`blocked`にする。
+- scope、docs要否、依存、完了条件が変わった場合は作業を保留し、`investigated`へ戻って再調査・再レビューする。scope外の変更を黙って続行しない。
 
-すべてのレビューで、🔴がなくなるまで修正と再レビューを行う。🔴が存在する場合は、🟡と🟢も同じサイクルで可能な限り修正する。
+## 参照と検証
 
-## 基本方針
+- 状態・遷移・証跡・再開: [state-contract.md](references/state-contract.md)
+- Task/Issue/Agent/branch/worktree/PRの対応とDAG: [relationship-and-independence.md](references/relationship-and-independence.md)
+- SubAgentの能力fallbackと受渡し: [subagents.md](references/subagents.md)
+- フェーズ別の成果物: [phases.md](references/phases.md)
+- Git/GitHubの能力確認: [github-cli-auth.md](references/github-cli-auth.md)
+- Workflow変更の監査: [issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md)
 
-- 作業開始時はPlan機能が利用できる場合に実行計画を作成・更新し、利用できない場合は同じ項目をチャットまたはIssueへ構造化して記録する。いずれも計画未確定のままフェーズ1を開始しない。
-- チャット入力は、最初にタスク分解と独立性判定を行う。Issueを1つにするか複数に分割するかは、独立性判定の結果に基づいてAIが決定する。
-- Issue作成前に影響範囲・依存関係を調査し、docs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、外部サービスを確認する。調査できない対象は推測で確定せず、`未確認`としてリスクと停止条件へ記録する。
-- フェーズ1〜5はpre-branch read-onlyフェーズとする。リポジトリのコード、docs、Skill、Agent、設定、テスト、生成物を変更せず、変更候補は実行計画・Issue・コメントへ記録する。許可される外部変更は、担当者を明示したGitHub Issueの作成・コメント・属性設定だけである。
-- Issue作成前に、Issue同士の`depends_on`、`blocks`、`related`、`conflicts_with`を実行計画へ記録し、依存関係がDAGであることを確認する。
-- IssueごとにTask、SubAgent、書き込み範囲、branch、worktree、PRを一意に対応付ける。対応付けできないIssueやAgentは起動・実装・完了扱いにしない。
-- 書き込みを委譲するTaskでは、branch gate後に親Agentが最新`origin/develop`から専用branch/worktreeを作成・検証し、SubAgentへ割り当てる。SubAgentは割り当てられたworktreeだけを変更する。
-- 分割したタスクは原則として「1タスク・1 Issue・1ブランチ・1 PR」とする。
-- 前提タスクがある場合は、その依存部分だけを直列実行する。独立したタスクはSubAgentと独立worktreeで並列実行する。
-- 独立性判定で決めた変更ファイル・ディレクトリの範囲を、実装SubAgentの書き込み許可範囲として引き継ぐ。
-- Issue、PR、コメント、docs、commitメッセージの説明文は日本語で作成する。commitのprefixは英語のConventional Commits形式を維持し、例は `feat: スケジュール登録を追加 (#123)` とする。
-- Issue・PR作成権限は必要な場合に限り、対象タスクを担当する1つのSubAgentまたは親Agentへ付与する。重複作成を防ぐため、作成担当をタスクごとに1つだけ決める。
-- 独立タスクの一部が失敗しても、依存していない他タスクは継続する。失敗タスクに依存する後続タスクだけを停止し、最後に全体結果を集約する。
-
-### 実行計画とスコープ契約
-
-実行計画は作業の実行順を示すだけでなく、各Taskの変更権限と停止条件を固定する契約である。Plan機能が利用できる場合はPlanに、利用できない場合はチャットまたはIssueに、最低限次を記録する。
-
-| 項目 | 必須内容 |
-| --- | --- |
-| Task | 仮ID、目的、Issue分割、単独の完了条件 |
-| 関係 | `depends_on`、`blocks`、`related`、`conflicts_with`、DAGの確認結果 |
-| Scope | read scope、write scope、forbidden scope、外部変更scope、関連テスト |
-| 担当 | 作成・実装・レビュー・PRの担当Agent、権限、SubAgent状態 |
-| Git | 基点SHA、branch、worktree、commit、PRの対応 |
-| フェーズ | 入力、成果物、完了条件、検証方法、停止条件、次フェーズ |
-
-実行計画はフェーズ開始時と完了時に更新し、同時に複数フェーズを進行中にしない。Task、scope、担当、依存、完了条件がない場合は、Issue作成、SubAgent起動、branch/worktree作成、実装へ進まない。
-
-`write scope`は変更を許可する最小のファイル・ディレクトリ集合、`forbidden scope`は変更禁止範囲として具体的なパスまたはパターンで記録する。scope外の変更が必要になった場合は作業を停止し、影響範囲調査、独立性判定、Plan、Issueの完了条件を更新して再レビューする。口頭の判断だけでscopeを拡張しない。
-
-実行計画の前提、scope、依存、競合、完了条件が後続フェーズで変わった場合は、現在のフェーズを保留して計画を更新し、変更された前提を再検証する。未更新の計画に基づくcommit、push、PR、マージは完了扱いにしない。
-
-## 実行前の確認
-
-次の情報が不足している場合は、合理的に補完できるものを除いて確認する。
-
-- 対象リポジトリ
-- Issueのタイトル、本文、完了条件
-- Assignees、Labels、Milestone、Leadershipまたはプロジェクト固有の管理項目
-- 作業ブランチの基点と命名規則
-- IssueレビューおよびPRレビューの観点
-- PRのAssignees、Labels、Milestone、Development、Reviewers
-
-IssueまたはPRのLabelsを扱う場合は、[labels.md](references/labels.md) の分類・付与ルールを適用する。GitHubのIssueラベルとGitのリリースタグ（`v<semver>`）を混同しない。
-
-Issue作成、Issueコメント、Issue属性変更、commit、push、PR作成、PRコメント、PR属性変更は外部または共有状態を変更する。対象、変更内容、必要な権限を確認してから実行する。
-
-Issue作成前に実行計画でTask、依存、競合、担当SubAgent、scopeを確定し、各フェーズで更新する。Codex公式にない独自JSON台帳を必須形式として扱わない。
-
-## フェーズ実行
-
-フェーズ一覧と各フェーズの入力・成果物・完了条件は [phases.md](references/phases.md) に定義する。通常は次の順で実行する。
-
-1. チャット要求のタスク分解・独立性判定
-2. 依存関係と並列実行計画の作成
-3. 影響範囲・依存関係調査
-4. Issue作成（Labelsを付与）
-5. Issueレビューと修正
-6. 最新基点ブランチの更新と作業worktree・ブランチ作成
-7. docs作成（必要に応じて`docs/context`の参照・Task contextを更新）
-8. docsレビューと修正
-9. 実装
-10. 実装レビューと修正
-11. commit
-12. push
-13. PR作成（IssueのLabelsを継承・確認）
-14. PRレビューと修正
-15. PRマージ後のworktree削除と結果集約
-
-各フェーズの開始時に前フェーズの完了条件を確認し、終了時に成果物、レビュー結果、テスト結果、未解決事項を記録する。フェーズを省略する場合は理由を報告する。
-
-### Pre-branch read-onlyゲート
-
-フェーズ1〜5では、親AgentとSubAgentを問わずリポジトリのファイル変更、commit、stash、branch作成、worktree作成、pushを行わない。コード修正が必要だと判明しても、対象ファイル、write scope、依存、テスト、完了条件へ記録して停止する。Issue本文・コメントなどGitHub上の計画記録だけが許可される。
-
-Issueレビューで🔴がなくなった後、フェーズ6を開始する。`git status --short --branch`がcleanであること、`git fetch origin`後の基点SHA、branch、worktreeを確認できない場合は、フェーズ7以降へ進まない。フェーズ6が、リポジトリへ変更を加えてよい最初のゲートである。
-
-フェーズ6を開始する前に、実行計画のフェーズ1〜5が完了し、Task/Issue/Agent/scopeの対応、依存DAG、Issueレビュー🔴0件、開始時のGit状態が記録されていることを確認する。これらが確認できない場合はbranch gateを開けない。
-
-### 影響範囲・依存関係調査フェーズ
-
-Issue作成前に、Taskごとの影響範囲と依存関係を調査する。調査結果は実行計画とIssueへ反映し、次の表で追跡する。
-
-| Task | 対象 | 影響内容 | 更新要否 | 関連テスト | 外部影響 | 依存・競合 | 担当・write scope | 調査状態 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| T1 | `lib/foo.dart` | 呼び出し元・呼び出し先、型、設定 | 必須／不要 | `test/foo_test.dart` | なし／内容 | T2に依存／競合なし | Agent・scope | confirmed／未確認／対象外 |
-
-調査対象には、既存Issue・PR、docs、`docs/context`、Skill、Agent、コード、呼び出し元・呼び出し先、型・API、設定、テスト、Fixture、Mock、生成物、CI/CD、DB、外部サービスを含める。docs・context・Skillを広範に探索する場合は[document-search Skill](../document-search/SKILL.md)のBM25検索を先に使い、上位候補の本文と正規情報源を確認する。静的検索だけで判断できない実行時依存や外部サービスは、必要に応じてテスト・ビルド・実行時確認で補完する。contextを更新する場合は、正規情報源、registry、鮮度、Task contextのactive/archive状態を確認する。
-
-調査できない対象は`未確認`としてリスクと停止条件へ記録し、推測で`confirmed`にしない。Issue、docs、実装、レビューでスコープ・依存・競合が変わった場合は、このフェーズへ戻って影響範囲を再調査する。
-
-このフェーズの成果物は実行計画、Issue、コメントなどの計画記録であり、リポジトリファイルではない。影響調査中に見つかったコード修正は、branch作成後の実装フェーズへ引き継ぐ。
-
-### タスク分解・並列実行フェーズ
-
-チャット入力をそのままIssue化せず、最初に [task-decomposition.md](references/task-decomposition.md) と [relationship-and-independence.md](references/relationship-and-independence.md) に従ってタスクを分解する。続けて影響範囲・依存関係を調査し、タスクごとに目的、完了条件、変更範囲、依存タスク、競合資源、担当SubAgent、Issue・ブランチ・worktree・PRの対応を決める。
-
-`task_planner`、`impact_analyzer`、`issue_reviewer`、`docs_reviewer`、`workflow_reviewer`などpre-branch担当はread-onlyで実行する。レビューのためにファイルを修正する必要がある場合も、Issueへ指摘を記録し、branch gate後のdocsまたは実装フェーズへ戻す。
-
-実行計画に記録したTaskごとのread/write/forbidden scope、依存、担当、検証方法をSubAgent起動入力へそのまま引き継ぐ。計画にない独立タスクを途中で追加したり、複数Taskのscopeをまとめたりする場合は、先に計画とIssue分割を更新して再レビューする。
-
-独立タスクは、利用可能なCodexコラボレーション機能で実際にSubAgentを起動し、親Agentが準備したTaskごとの専用worktreeで並列実行する。対応機能がない場合は親Agentが直列実行する。1タスクは1 Issue・1ブランチ・1 worktree・1 PRに対応させ、独立Issueを1つのPRへ混在させない。依存タスクは前提タスクのPRがマージされ、最新の基点ブランチへ反映された後に次のSubAgentを開始する。あるタスクが失敗しても、依存していないタスクは停止しない。
-
-### 作業ブランチ・worktree作成フェーズ
-
-Issueレビューで🔴がなくなり、Issueの作成条件が確定した後、docs作成または実装を開始する前に作業ブランチを作成する。プロジェクトに `gitflow-branching` Skillがある場合はそれを呼び出し、なければ次の手順を適用する。
-
-1. `git status --short --branch` で未コミット変更を確認する。pre-branchで差分が発生している場合は、既存変更を破棄・退避せず、原因と担当Taskを確認して停止する。
-2. `git remote -v`、`git branch --all`、`git worktree list` でremote、基点ブランチ、既存ブランチ、worktreeを確認する。
-3. `git fetch origin` でリモートの最新状態を取得する。
-4. 通常の開発では `origin/develop` を最新の基点とする。必要に応じてローカルの `develop` を `git switch develop` と `git pull --ff-only origin develop` で更新する。`develop` がない場合は勝手に作成せず確認する。
-5. 親Agentがタスクごとに一意の `feature/{IssueNo}-{short-description}` と `../{repo}-worktrees/{IssueNo}-{short-description}` を割り当て、最新の `origin/develop` を基点としてbranchと専用worktreeを作成・検証する。
-6. SubAgentは割り当てられたworktree内でdocs・実装を進め、commit・push・PRは明示的な担当指定がある場合だけ実行する。親Agentはworktree path、branch、Issue、PRの対応を検証する。書き込み範囲は独立性判定で定めた範囲に限定し、worktreeを共有しない。
-7. PRがマージされたことを確認したら、`git worktree remove <worktree-path>` でタスク専用worktreeを削除する。未コミット変更や未マージのcommitがある場合は削除せず停止する。
-
-ブランチ作成、push、Issue・PR作成、マージ、worktree削除は共有状態を変更するため、対象と権限を確認する。`main`、`develop`への直接コミット、force push、履歴の書き換えは行わない。
-
-### Issue作成後のdocsフェーズ
-
-Issue作成とIssueレビューが完了したら、実装前にIssueを元にdocsを作成する。docsの種類はリポジトリの規約に合わせるが、少なくとも仕様、利用者または呼び出し側、動作フロー、データ/API、エラー、制約、完了条件との対応を整理する。
-
-このリポジトリではObsidianをdocsの主な作成・参照環境とする。新規または大きく更新するdocsは`docs/templates/document-template.md`から作成し、`docs/governance/obsidian-docs.md`に定めるProperties（`type`、`status`、`tags`、`related`、`updated`）、内部Wikilink、MOCからの導線、backlinkを設定する。作成後はObsidianでProperties、リンク、backlink、表、コードブロックの表示を確認し、通常のMarkdownビューアでも読めることを確認する。Obsidian固有表示を仕様本文の唯一の表現にしない。
-
-docs作成後は [docs-review](../docs-review/SKILL.md) を使ってレビューし、🔴がなくなるまで修正と再レビューを行う。Issueやdocsの変更が実装方針に影響する場合は、Issueレビューへ戻る。対象ファイル、依存、競合、外部影響が変わった場合は、影響範囲・依存関係調査へ戻って実行計画と完了条件を更新する。
-
-### Context外部化の扱い
-
-`docs/context/`は作業開始時の探索性を高める要約・リンク・判断記録であり、要件・設計・Workflowの正規本文ではない。contextを追加・更新するときは、[Context registry](../../../docs/context/registry.md)に用途、正規情報源、更新契機、鮮度またはアーカイブ方針を記録する。正規docsの本文を複製せず、Issue単位の作業判断は`docs/context/task/active/<IssueNo>/`に置き、Issue close・PR merge後にarchiveする。外部情報は出典、取得日、版または更新日、確認日を記録し、秘密情報を保存しない。
-
-### Workflowレビュー
-
-ワークフローのSkillまたは参照資料を変更した場合、またはIssue分割・並列SubAgent・複数worktree・複数PRを含む場合は、[issue-to-pr-workflow-review](../issue-to-pr-workflow-review/SKILL.md) の契約検証、Skill構造検証、worktree分離スモークテストを実行する。🔴が残る場合は修正して再レビューし、検証結果をIssueまたはPRへ記録する。
-
-Skillの構造検証は、`../issue-to-pr-workflow-review/scripts/validate_skill_stdlib.py`を優先して実行する。これはPython標準ライブラリだけで実行できるリポジトリ内の必須検証であり、外部validatorの依存不足を理由にWorkflowを未完了にしない。
-
-## GitHub CLI・Project連携フェーズ
-
-GitHub CLIを使うIssue・PR・Project操作は、[github-cli-auth.md](references/github-cli-auth.md)に従い、Keychainを利用できる通常権限のzsh環境で対象コマンドだけを実行する。サンドボックス全体を無効化せず、認証トークンを別の保存先へコピーしない。PR作成時はIssueのclosing keywordによるDevelopment連携と、Projectへの追加・フィールド更新を別々に確認し、Project操作が未実行なら完了扱いにしない。
-
-GitHub CLIの認証手順とProject／Development連携の詳細は [github-cli-auth.md](references/github-cli-auth.md) を参照する。Issue・PRコメントの改行保持は [comment-posting.md](references/comment-posting.md) を参照する。
-
-## 各フェーズの詳細
-
-実装、commit、push、PR作成、PRレビューの具体的な入出力と完了条件は [phases.md](references/phases.md) に従う。レビューの観点とコメント形式は、それぞれのレビューSkillに委譲する。
-
-レビューコメントは、IssueとPRで同じ指摘IDを使い、コメントの先頭に前回指摘の解消状況と新規指摘一覧を置く。`{IssueNo}` は対象Issue番号、`{指摘No}` はそのIssue内で通し採番する。修正後も既存IDは再利用・変更せず、新しい指摘だけ次の番号を採番する。
-
-前回指摘の解消状況:
-
-```markdown
-| ID | レベル | チェック |
-| --- | --- | --- |
-| {IssueNo}-{指摘No} | 🔴 | ✅ / ⛔️ |
-```
-
-新たな指摘:
-
-```markdown
-| ID | レベル | 概要 |
-| --- | --- | --- |
-| {IssueNo}-{指摘No} | 🔴 / 🟡 / 🟢 | xxxxxx |
-```
-
-表の後ろに、IDごとの詳細を記録する。
-
-### {IssueNo}-{指摘No}
-
-**問題**:
-
-<問題の内容>
-
-**理由**:
-
-<なぜ修正が必要か>
-
-**修正案**:
-
-<具体的な修正案>
-
-**確認方法**:
-
-<修正後の確認方法>
-
-実際のIssue/PRコメントでは、外側のコードフェンスを付けず、次のMarkdown形式で投稿する。
-
-### {IssueNo}-{指摘No}
-
-**レベル**: 🔴 必須修正
-
-**対象**: <ファイル、Issue項目、PR差分>
-
-**問題**:
-
-<何が問題か>
-
-**理由**:
-
-<なぜ修正が必要か>
-
-**修正案**:
-
-<推奨する対応>
-
-**確認方法**:
-
-<修正後の確認方法>
+レビュー対象は[issue-review](../issue-review/SKILL.md)、[docs-review](../docs-review/SKILL.md)、[implementation-review](../implementation-review/SKILL.md)へ分離する。Workflowを変更した場合、契約validator、pre-branch gate、safe worktree smoke test、docs link checkを実行し、🔴が残る間は次へ進まない。
 
 ## 停止条件
 
-次の場合は推測で進めず、ユーザーに確認する。
-
-- 要求や完了条件が複数の意味に解釈できる
-- 必須メタデータ、担当者、レビュー担当者が決まっていない
-- スコープ外の変更や破壊的変更が必要になる
-- 認証情報または権限が不足している
-- push、PR作成、外部サービスへの変更について許可がない
+- Task、依存、scope、担当、完了条件の記録が不足している
+- Issue reviewの🔴、基点SHA、親が準備した専用環境のいずれかが確認できない
+- 外部effectの対象・内容・権限が不足または拒否されている
+- scope外の変更、依存未達、必要な検証失敗がある
 - レビュー指摘の優先度を判断できない
 - テスト失敗の原因を特定できない
 

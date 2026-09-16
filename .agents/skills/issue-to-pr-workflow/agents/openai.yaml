@@ -1,4 +1,4 @@
 interface:
   display_name: "Issue to PR Workflow"
   short_description: "Issue作成からPRレビューまでの開発フローを支援"
-  default_prompt: "要望を独立したタスクへ分解し、利用可能なSubAgentを実際に起動して並列化できる作業を委譲しながら、Issue作成、レビュー、実装、commit、push、PR作成、PRレビューまでを進めてください。"
+  default_prompt: "要望を状態契約に沿ってTaskへ分解し、PlanまたはIssueへscopeと依存を記録してください。Issue review後は親Agentが専用worktreeを準備し、利用可能なSubAgentだけへ委譲します。Git/GitHub操作は親Agentのeffect gateで対象・内容・権限を確認し、拒否時は実行せずblockedとして報告してください。"

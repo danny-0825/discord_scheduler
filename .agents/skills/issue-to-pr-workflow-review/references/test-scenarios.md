@@ -1,5 +1,7 @@
 # Workflow検証シナリオ
 
+状態名、遷移、再開条件は[状態契約](../../issue-to-pr-workflow/references/state-contract.md)、機械可読なsafe dry-runは[workflow-state-fixtures.json](workflow-state-fixtures.json)を正規情報源とする。この文書はレビュー時に確認する人間向けの要約であり、手順を複製しない。
+
 ## シナリオA: 独立タスク2件
 
 ### Plan未確定で開始しようとするケース
@@ -34,8 +36,6 @@ T1とT2がそれぞれIssue、SubAgent、worktree、PRを持ち、`related`だ�
 
 Issue作成前に、Taskごとにdocs、Skill、Agent、コード、テスト、設定、生成物、CI/CD、DB、外部サービスの影響範囲表を作成する。コードの呼び出し元・呼び出し先、型・API、関連テスト、Fixture、Mockを確認し、更新要否、依存・競合、write scope、調査状態を記録する。実行時依存や外部サービスを確認できない場合は`未確認`としてリスクと停止条件へ記録し、`confirmed`扱いにしない。後続フェーズで対象範囲が変わった場合は、影響範囲調査へ戻って表と実行計画を更新する。
 
-## 実行範囲
-
 ## シナリオG: Context外部化
 
 `docs/context`の入口からregistry、core、task、external、generatedへ辿れることを確認する。正規docsの重複コピーがなく、外部情報に出典・取得日・確認日があり、Issue close後のTask contextがarchiveへ移る運用を確認する。
@@ -47,3 +47,11 @@ Issue作成前に、Taskごとにdocs、Skill、Agent、コード、テスト、
 このシナリオは、外部GitHubを変更しないdry-runとローカルGitスモークテストで検証する。Issue作成、push、PR、mergeを実環境で検証する場合は、ユーザーの明示的な許可と対象リポジトリを確認する。
 
 ローカル検証では`references/../scripts/pre_branch_gate_test.sh`も実行し、branch gate前のread-onlyとgate後のwriteを確認する。
+
+## シナリオI: Plan・SubAgent・docs fallback
+
+Plan機能がない場合は、チャットまたはIssueへ同じ必須項目を構造化して記録するfallbackを使い、`issue_reviewed`まで進める。記録先がない場合だけ開始しない。SubAgent能力がない場合は親Agentが直列実行し、role名だけを起動済みと扱わない。docsを変更しない場合は、親Agentがreason・owner・rationaleを記録したときだけ`docs_waived`を通過できる。
+
+## シナリオJ: external effect deny
+
+effect gateのauthorizationが拒否または能力不足の場合、Git/GitHub操作を呼ばず`blocked`にする。これはlive GitHub操作ではなくfixtureの`external_runner_invoked: false`で確認する。
