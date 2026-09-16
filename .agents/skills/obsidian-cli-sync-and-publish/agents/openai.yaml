@@ -1,6 +1,6 @@
 interface:
   display_name: "Obsidian CLI Sync and Publish"
-  short_description: "Operate Obsidian Sync and capability-gated Publish workflows safely through official desktop CLI commands."
-  default_prompt: "Use official Obsidian CLI Sync commands, probe publish command availability before using any publish action, and apply explicit side-effect reporting plus conservative guardrails for mutating operations."
+  short_description: "Operate Obsidian Sync and capability-gated Publish safely"
+  default_prompt: "Use $obsidian-cli-sync-and-publish for this Sync/Publish request. Probe capability and status first, then report any remote side effect before mutating."
 policy:
   allow_implicit_invocation: false

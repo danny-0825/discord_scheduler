@@ -1,6 +1,6 @@
 ---
 name: docs-review
-description: Issueを元に作成した仕様・設計・利用方法などのdocsをレビューし、🔴必須修正・🟡推奨修正・🟢軽微/参考に分類する。docs作成後、実装前に使用する。
+description: Issueに対する仕様・設計・利用docsをread-onlyでレビューし、実装前の必須修正を分類する。docs作成やIssue編集には使わない。
 ---
 
 # Docs Review

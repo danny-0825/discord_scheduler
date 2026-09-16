@@ -1,6 +1,6 @@
 ---
 name: retro-summary
-description: Create project-completed Obsidian summaries for older work by finding relevant prior AI agent threads/sessions and the matching source repo. Use when the user asks to retroactively summarize previous projects, says "retro summary", "find previous project threads", or asks to create completed summaries for old projects.
+description: ユーザーが明示的に依頼した過去のagent/repository evidenceを復元し、Obsidianへ完了作業summaryを保存する。現在作業のhandoffには使わない。
 ---
 
 # Retro Summary

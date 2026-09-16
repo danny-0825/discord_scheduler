@@ -1,6 +1,6 @@
 ---
 name: project-completed-summary
-description: Save a completed work/project summary to the user's Obsidian vault from current work, workspace/repo state, or AI agent session evidence. Use when the user says "Save project summary to Obsidian", "save completed project summary", "project completed summary", or asks to preserve what happened in a finished AI agent work thread.
+description: ユーザーが明示的に依頼した、完了作業の耐久性あるObsidian summaryを一件保存する。進行中checkpointや過去作業の一括復元には使わない。
 ---
 
 # Project Completed Summary

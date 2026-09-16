@@ -1,6 +1,6 @@
 ---
 name: gitflow-branching
-description: GitFlow 方式でこのプロジェクトのブランチ作成、命名、マージ、リリース、ホットフィックスを計画・実行する。ブランチ運用や Git 操作を依頼されたときに適用し、通常のコード変更だけには適用しない。
+description: ユーザーが明示的に依頼した、このプロジェクトのGitFlow branch・worktree・release操作を計画または実行する。通常のコード変更だけやGitHub Issue/PR本文の管理には使わない。
 ---
 
 # GitFlow Branching

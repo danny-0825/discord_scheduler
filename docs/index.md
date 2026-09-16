@@ -28,6 +28,7 @@ updated: 2026-09-13
 - [[docs/requirements/README|要件定義書]]
 - [[docs/design/README|詳細設計書]]
 - [[docs/skills/README|Skill docs]]
+- [[docs/skills/catalog|Skill catalog and routing]]
 - [[docs/agents/README|Agent docs]]
 - [[docs/research/index|AI資産の調査]]
 - [[docs/other/README|その他のdocs]]

@@ -1,6 +1,6 @@
 ---
 name: obsidian-cli-bases-and-bookmarks
-description: Use this skill when the user needs official desktop Obsidian CLI Bases or Bookmarks workflows, including base discovery, view/query operations, base item creation, and bookmark management. Keep this skill separate from general note CRUD, runtime admin, Sync/Publish, and devtools diagnostics.
+description: Use documented desktop Obsidian CLI for Bases discovery/query/item creation and bookmark operations. Excludes general note CRUD, runtime admin, diagnostics, navigation, and Sync/Publish.
 ---
 
 # Obsidian CLI Bases and Bookmarks

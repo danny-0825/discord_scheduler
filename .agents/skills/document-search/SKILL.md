@@ -1,6 +1,6 @@
 ---
 name: document-search
-description: リポジトリ内のdocs、context、Skill、Agent定義をBM25で順位付けして検索する。作業開始時の広範なドキュメント探索や、関連する既存仕様・運用ルールの発見に使用する。
+description: リポジトリ内のMarkdown docsとSkill指示をBM25でread-only検索し、関連仕様を発見する。TOMLのAgent定義や実装コードの検索には使わない。
 ---
 
 # Document Search

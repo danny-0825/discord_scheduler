@@ -6,12 +6,15 @@ tags:
 related:
   - "[[docs/governance/obsidian-docs]]"
   - "[[docs/index]]"
-updated: 2026-09-13
+  - "[[docs/skills/catalog]]"
+updated: 2026-09-14
 ---
 
 # Skill docs
 
 Skill docsは、Skillをいつ使うか、何を入力し、何を出力し、どの範囲を変更できるかを説明する。実体の手順は`.agents/skills/<skill-name>/SKILL.md`を参照し、本文を重複させない。
+
+利用時の主入口、近接Skillとの境界、明示起動ポリシーは [[docs/skills/catalog|Skill catalog and routing]] を正規情報源とする。
 
 ## 必須項目
 
@@ -27,4 +30,4 @@ Skill docsもObsidian Propertiesと内部Wikilinkを持たせ、VaultのMOCか�
 
 ## BM25検索
 
-ドキュメント探索には[document-search Skill](../../.agents/skills/document-search/SKILL.md)を使用する。実装はリポジトリ内のMarkdownを対象とする依存なしCLIで、詳細な検索設計はSkillのreferenceを正規情報源とする。
+ドキュメント探索には[document-search Skill](../../.agents/skills/document-search/SKILL.md)を使用する。実装はリポジトリ内のMarkdownを対象とする依存なしCLIで、詳細な検索設計はSkillのreferenceを正規情報源とする。Agent TOMLや実装コードは、このSkillの対象外である。

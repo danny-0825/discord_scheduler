@@ -1,4 +1,6 @@
 interface:
   display_name: "Project Autojournal"
-  short_description: "Auto-create Obsidian project checkpoints from AI agent work"
-  default_prompt: "Use $project-autojournal to review new AI agent work and write project checkpoint notes."
+  short_description: "Write project-memory checkpoints for all unprocessed AI work"
+  default_prompt: "Use $project-autojournal to enumerate unprocessed AI work, then write one Obsidian checkpoint per resolved project/workstream and update its state file."
+policy:
+  allow_implicit_invocation: false

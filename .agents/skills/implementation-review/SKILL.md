@@ -1,6 +1,6 @@
 ---
 name: implementation-review
-description: Issueとdocsに基づく実装、テスト、設定、差分をレビューし、🔴必須修正・🟡推奨修正・🟢軽微/参考に分類する。commitやPR作成前後の実装レビューに使用する。
+description: Issueとdocsに照らして実装差分・設定・テストをread-onlyレビューし、commitまたはPR前後の必須修正を分類する。実装の変更には使わない。
 ---
 
 # Implementation Review
