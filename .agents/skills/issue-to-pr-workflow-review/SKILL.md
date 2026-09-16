@@ -1,13 +1,13 @@
 ---
 name: issue-to-pr-workflow-review
-description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree、branch、commit、PR、レビュー、マージまで期待どおりに実行できるかを検証する。Workflow変更時や並列タスクの計画時に使用する。
+description: Issue-to-PR Workflowの状態遷移、証跡、Plan/SubAgent fallback、worktree隔離、外部effect gateをread-onlyで検証する。Workflow変更時や並列タスクの計画時に使用する。
 ---
 
 # Issue-to-PR Workflow Review
 
 ## 目的
 
-製品コードのレビューではなく、[issue-to-pr-workflow](../issue-to-pr-workflow/SKILL.md)の実行契約をレビューする。文書に役割名があるだけでなく、Issue、SubAgent、branch、worktree、commit、PRの関係、観測可能な成果物、状態遷移が得られるかを確認する。
+製品コードのレビューではなく、[issue-to-pr-workflow](../issue-to-pr-workflow/SKILL.md)の実行契約をレビューする。正規の状態・effect gate・再開条件は[状態契約](../issue-to-pr-workflow/references/state-contract.md)にあり、このSkillは証跡とfixtureでその実行可能性を確認する。
 
 ## 適用条件
 
@@ -42,6 +42,9 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 | WF-15 | branch gateがIssueレビュー完了、最新基点、専用branch/worktreeを検証してからwriteを許可する | Issueレビュー結果、fetchログ、基点SHA、branch/worktree一覧 |
 | WF-16 | 作業開始時に、Plan機能または同等の構造化記録でTask、依存、scope、担当、フェーズ完了条件を確定する | Plan、チャットまたはIssue、関係表、フェーズ更新履歴 |
 | WF-17 | 実際の変更が実行計画のwrite scope内で、forbidden scopeを変更していない | 計画のscope、git diff、SubAgent報告、レビュー結果 |
+| WF-18 | Planなしでは構造化チャット/Issue記録へfallbackし、SubAgentなしでは親が直列実行する | Plan/Issue記録、実行者、SubAgent状態 |
+| WF-19 | `docs_waived`には理由・判断者・根拠があり、scope逸脱は`investigated`へ戻る | Plan/Issueの免除記録、再調査記録 |
+| WF-20 | effect gateが拒否・能力不足なら外部runnerを実行せず`blocked`になる | action/target/owner/authorization/outcome、deny fixture |
 
 ## 実行手順
 
@@ -57,7 +60,7 @@ description: Issue-to-PR Workflow自体が、Issue分割、SubAgent、worktree�
 9. 各タスクのIssue／branch／worktree／PRを1対1で割り当てる。1つのPRへ複数の独立Issueをまとめる計画は🔴とする。
 10. 親Agentが専用worktree path、branch名、read/write/forbidden scope、依存・後続Task、PR担当権限を確定する。書き込みを委譲する場合は親Agentがworktreeを作成・検証してからSubAgentへ渡す。
 11. [checklist.md](references/checklist.md)で静的レビューを行う。
-12. [test-scenarios.md](references/test-scenarios.md)のdry-runを実行し、`scripts/validate_workflow_contract.py`、必要に応じて`smoke_test.sh`と`pre_branch_gate_test.sh`で契約、ゲート、scope、worktree分離を検証する。
+12. [test-scenarios.md](references/test-scenarios.md)と[workflow-state-fixtures.json](references/workflow-state-fixtures.json)のdry-runを実行し、`scripts/validate_workflow_contract.py`、`pre_branch_gate_test.sh`、`smoke_test.sh`、`validate_docs_links.py`で状態、gate、scope、worktree分離、docs linkを検証する。
 13. 実行中のAgent ID、状態、成果物、失敗、終了を記録する。起動していないAgentを起動済みと扱わない。
 14. 外部GitHub状態を変更するlive auditは、ユーザーが許可した場合だけ行う。通常はdry-runで止める。
 15. 🔴がなくなるまでWorkflow定義を修正して再レビューする。

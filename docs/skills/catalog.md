@@ -22,7 +22,7 @@ Issue #50 / T49 の正規Skill catalog。機械可読な契約、21件の代表p
 - `boundary` は近接するが選択しない入口である。曖昧な依頼を両方のSkillで処理しない。
 - `read-only` は外部または永続状態を変更しない。`*-write` は変更を起こし得るため、実行時に対象・権限・副作用を確認する。
 - 書込み・外部操作を伴う14 Skill（Obsidian CLI 7、GitFlow、implementation finder、project-memory 5）は `allow_implicit_invocation: false` とし、明示的なSkill指定を必要とする。Obsidian workflowは加えて登録済みの `workflow_id` を必要とする。これはこのリポジトリの明示的な運用判断である。
-- `issue-to-pr-workflow` はT50所有の暫定例外として暗黙起動を許容する。外部操作は`AGENTS.md`の親Agent所有と実行時承認で制御し、T50でWorkflow実行契約を再設計する。
+- `issue-to-pr-workflow` は開発要求の主routeとして暗黙起動を許容する。Git/GitHub等の外部操作は親Agentだけがeffect gateで対象・内容・権限を確認してから行い、拒否または能力不足なら実行せず`blocked`にする。状態遷移と証跡はWorkflow Skillが正規情報源である。
 - `document-search` はMarkdownを読むread-only例外であり、UI manifestを持たない。Agent TOMLや実装コードを探す場合は `rg` 等の通常の探索を使う。
 
 ## 開発運用
@@ -35,7 +35,7 @@ Issue #50 / T49 の正規Skill catalog。機械可読な契約、21件の代表p
 | `implementation-finder` | 類似実装の比較 | job spec/先行例 → 推奨 | project-memory write | 実装やreviewではない |
 | `implementation-review` | 実装差分review | Issue/docs/diff/tests → 指摘 | read-only | Issue本文reviewではない |
 | `issue-review` | Issueの実装可能性review | Issue/scope/deps → 指摘 | read-only | 実装済み差分reviewではない |
-| `issue-to-pr-workflow` | IssueからPRまでの実行 | 要望/Task plan → 開発進行記録 | Git/GitHub（T50暫定例外） | Workflow監査ではない |
+| `issue-to-pr-workflow` | IssueからPRまでの状態契約 | 要望/Task plan → 状態・証跡・開発進行記録 | 親Agentがeffect gate後にGit/GitHub操作 | Workflow監査ではない |
 | `issue-to-pr-workflow-review` | Workflow契約監査 | Workflow/plan/evidence → scenario結果 | read-only | 個別Issue reviewではない |
 
 ## Obsidian CLI（明示起動のみ）

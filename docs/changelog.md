@@ -17,6 +17,7 @@ updated: 2026-09-14
 
 | 日付 | 分類 | 概要 | 関連Issue/PR |
 | --- | --- | --- | --- |
+| 2026-09-17 | workflow / skill / docs / test | Issue-to-PR Workflowを状態・証跡・effect gateの契約へ再編し、Plan/SubAgent fallback、docs免除、scope逸脱、外部操作拒否、worktree隔離をsafe fixtureとstdlib検証で固定 | #52 |
 | 2026-09-14 | skill / docs / test | 21 Skillの主目的・I/O・副作用・近接境界をcatalog化し、42件のrouting fixtureとmanifest整合検証を追加。書込み・外部操作を伴う14 Skillを明示起動に統一 | #50 |
 | 2026-09-13 | research / governance | Codex AI資産の公式・比較調査、キーワード台帳、再構成DAG、運用基準を追加 | #48 |
 | 2026-09-13 | workflow / skill / agent / docs / config / test | Codex設定を現行CLIのAgent設定形式へ修正し、SubAgentの実行契約、親Agentによるworktree準備、7つの正規role、構造化計画fallback、静的契約テストを統一 | #46 |
