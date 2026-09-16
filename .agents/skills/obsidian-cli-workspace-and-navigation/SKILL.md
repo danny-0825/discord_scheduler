@@ -1,6 +1,6 @@
 ---
 name: obsidian-cli-workspace-and-navigation
-description: Use this skill when the user needs official desktop Obsidian CLI workspace, vault, tab, navigation, and utility operations, including workspace save/load/delete, tab and recent-file handling, vault info/listing, random/unique note navigation helpers, web viewer, and wordcount. Keep this skill separate from note CRUD/tasks/properties/history, runtime admin, devtools diagnostics, and Sync/Publish operations.
+description: Use documented desktop Obsidian CLI for vault, workspace, tab, navigation, web-viewer, and utility operations. Excludes note CRUD, runtime admin, diagnostics, and Sync/Publish.
 ---
 
 # Obsidian CLI Workspace and Navigation

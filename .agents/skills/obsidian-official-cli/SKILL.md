@@ -1,6 +1,6 @@
 ---
 name: obsidian-official-cli
-description: Use this skill when the user wants local Obsidian note or metadata work done primarily through documented official desktop `obsidian` CLI commands, with limited local vault filesystem support when needed for parent folders, path checks, ambiguity resolution, verification, or safe vault structure operations. Best for local vault search, note reads, exact-path note updates, backlinks, tasks, properties, templates, and local history. Do not use it for runtime admin, devtools diagnostics, workspace/navigation administration, community tools, `obsidian://` launcher tasks, Headless Sync or Publish workflows, or plugin-specific APIs.
+description: Use documented desktop Obsidian CLI for local note, metadata, link, task, template, and history operations. Excludes runtime admin, diagnostics, workspace navigation, and Sync/Publish.
 ---
 
 # Obsidian Official CLI

@@ -1,6 +1,6 @@
 ---
 name: issue-review
-description: Issueの要求、スコープ、完了条件、実装方針、メタデータをレビューし、🔴必須修正・🟡推奨修正・🟢軽微/参考に分類する。Issueを実装へ進める前に使用する。
+description: Issueの要求・scope・完了条件・実装方針をread-onlyレビューし、branch作成前の必須修正を分類する。Issue更新や実装には使わない。
 ---
 
 # Issue Review

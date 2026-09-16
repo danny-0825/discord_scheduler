@@ -1,6 +1,6 @@
 ---
 name: implementation-finder
-description: Find similar implementations across local workspaces/repos and recommend an approach before building or changing work. Use when the user says "suggest implementation", "what's the best approach", "find similar approaches", "what implementation should I go for", asks for an implementation plan from task context, wants comparable prior work, wants tradeoffs, or wants open questions discovered from local search.
+description: ユーザーが明示的に依頼した場合に、local workspacesの類似実装を探索して方針を推奨する。実装やreviewの代わりには使わない。
 ---
 
 # Implementation Finder

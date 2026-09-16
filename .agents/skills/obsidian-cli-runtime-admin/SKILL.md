@@ -1,6 +1,6 @@
 ---
 name: obsidian-cli-runtime-admin
-description: Use this skill when the user needs Obsidian runtime administration through official desktop CLI commands for plugins, restricted mode, themes, CSS snippets, command catalog/hotkeys, or targeted command execution. Keep this skill separate from note CRUD, Sync/Publish, and devtools diagnostics.
+description: Use documented desktop Obsidian CLI to inspect or change plugins, themes, snippets, restricted mode, commands, or hotkeys. Excludes note CRUD, diagnostics, navigation, and Sync/Publish.
 ---
 
 # Obsidian CLI Runtime Admin

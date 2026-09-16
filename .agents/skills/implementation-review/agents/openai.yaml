@@ -1,4 +1,4 @@
 interface:
   display_name: "Implementation Review"
-  short_description: "実装とテストを重大度別にレビューする"
-  default_prompt: "指定されたTask IDとworktreeの範囲だけを日本語でレビューし、指摘IDを採番して🔴必須修正・🟡推奨修正・🟢軽微/参考に分類してください。🔴がなくなるまで再レビューしてください。"
+  short_description: "Issue/docsに照らして実装差分とテストをread-onlyレビュー"
+  default_prompt: "指定されたIssue、docs、worktree差分、テスト結果をread-onlyで日本語レビューし、必須修正を分類してください。実装は変更しません。"

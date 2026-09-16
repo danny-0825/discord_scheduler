@@ -1,6 +1,6 @@
 ---
 name: save-work-checkpoint
-description: Save an in-progress work/project checkpoint to the user's Obsidian vault from current thread, workspace/repo state, or AI agent session evidence. Use when the user says "Save checkpoint", "save work checkpoint", "checkpoint to Obsidian", or asks to preserve where current work was left off.
+description: ユーザーが明示的に依頼した進行中作業のObsidian checkpointを、current threadとworkspaceから一件保存する。完了summaryや自動一括journalには使わない。
 ---
 
 # Save Work Checkpoint

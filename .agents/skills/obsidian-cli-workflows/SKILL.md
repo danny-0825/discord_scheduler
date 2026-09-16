@@ -1,6 +1,6 @@
 ---
 name: obsidian-cli-workflows
-description: Use this skill for one-command Obsidian workflow orchestration across the existing six domain skills. This skill owns named workflow command IDs and preview/apply execution policy, while delegating all direct official CLI command execution to the appropriate domain skill.
+description: Orchestrate registered one-command Obsidian workflows with preview/apply controls across domain skills. Excludes raw direct CLI requests and unregistered natural-language workflows.
 ---
 
 # Obsidian CLI Workflows

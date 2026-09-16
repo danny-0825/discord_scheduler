@@ -1,6 +1,6 @@
 ---
 name: resume-project-context
-description: Resume a work/project context from Obsidian project summaries, checkpoint notes, workspace/repo state, or AI agent session evidence. Use when the user says "Resume project context", "resume this project", "what happened in project X", "where did we leave off", or asks for a concise reminder of achieved work and next steps.
+description: Read Obsidian project memory and current workspace evidence to resume a named workstream. It reports context only and does not create or update memory notes.
 ---
 
 # Resume Project Context

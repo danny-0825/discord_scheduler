@@ -1,4 +1,6 @@
 interface:
   display_name: "Retro Summary"
-  short_description: "Summarize older completed work into Obsidian."
-  default_prompt: "Use $retro-summary to summarize completed project/work into Obsidian. Project/work:"
+  short_description: "Recover historical work and write completed summaries to Obsidian"
+  default_prompt: "Use $retro-summary to find evidence for this past project/work, verify it against the matching repository, and write a retro completed-summary note."
+policy:
+  allow_implicit_invocation: false

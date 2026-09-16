@@ -6,7 +6,7 @@ tags:
 related:
   - "[[docs/index]]"
   - "[[docs/governance/obsidian-docs]]"
-updated: 2026-09-13
+updated: 2026-09-14
 ---
 
 # docs・開発資産の更新履歴
@@ -17,6 +17,7 @@ updated: 2026-09-13
 
 | 日付 | 分類 | 概要 | 関連Issue/PR |
 | --- | --- | --- | --- |
+| 2026-09-14 | skill / docs / test | 21 Skillの主目的・I/O・副作用・近接境界をcatalog化し、42件のrouting fixtureとmanifest整合検証を追加。書込み・外部操作を伴う14 Skillを明示起動に統一 | #50 |
 | 2026-09-13 | research / governance | Codex AI資産の公式・比較調査、キーワード台帳、再構成DAG、運用基準を追加 | #48 |
 | 2026-09-13 | workflow / skill / agent / docs / config / test | Codex設定を現行CLIのAgent設定形式へ修正し、SubAgentの実行契約、親Agentによるworktree準備、7つの正規role、構造化計画fallback、静的契約テストを統一 | #46 |
 | 2026-09-13 | workflow / skill / test | 外部`yaml`依存なしでSkill構造を検証する標準ライブラリ検証スクリプトを追加 | #44 / #45 |

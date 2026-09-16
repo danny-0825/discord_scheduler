@@ -1,6 +1,6 @@
 ---
 name: project-autojournal
-description: Automatically maintain Obsidian project memory from recent AI agent work. Use when asked to auto-journal, create project checkpoints, update project memory, process AI agent transcripts, summarize latest work into Obsidian, or run a scheduled project checkpoint workflow. Creates fresh checkpoint notes per project, updates a JSON state file, and handles ambiguous work by writing an unsorted draft/question instead of a daily productivity journal.
+description: ユーザーが明示的に依頼したauto-journalingで、recent AI-agent workからObsidian checkpointとstateを保存する。単一handoffには使わない。
 ---
 
 # Project Autojournal

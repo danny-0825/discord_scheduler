@@ -1,4 +1,6 @@
 interface:
   display_name: "Setup Obsidian Work Skills"
-  short_description: "Configure vault and project memory"
-  default_prompt: "Use $setup-obsidian-work-skills to configure my Obsidian work skills."
+  short_description: "Configure and verify local Obsidian project-memory settings"
+  default_prompt: "Use $setup-obsidian-work-skills to configure the vault, repository roots, and agent sources, then verify the resulting local project-memory configuration."
+policy:
+  allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 ---
 name: setup-obsidian-work-skills
-description: Configure Obsidian Work Skills after installation. Use when the user installs this package, needs first-run setup, wants to connect an Obsidian vault, configure repo roots or agent session sources, verify the package, or decide whether to enable optional autojournal scheduling.
+description: ユーザーが明示的に依頼した、local Obsidian project-memory環境の設定・検証を行う。project noteは作成せずlocal configurationを書き込む。
 ---
 
 # Setup Obsidian Work Skills

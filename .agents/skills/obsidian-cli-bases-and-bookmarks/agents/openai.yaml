@@ -1,6 +1,6 @@
 interface:
   display_name: "Obsidian CLI Bases and Bookmarks"
-  short_description: "Work with Obsidian Bases and Bookmarks through official CLI commands with explicit scope and safety."
-  default_prompt: "Use official Obsidian CLI Bases and Bookmarks commands to discover base files, query views in structured formats, create base items intentionally, and manage bookmarks with explicit target types."
+  short_description: "Query Bases and manage bookmarks through the official Obsidian CLI"
+  default_prompt: "Use $obsidian-cli-bases-and-bookmarks for this Bases/Bookmarks request. Resolve the exact base or bookmark target first and report any mutation before execution."
 policy:
   allow_implicit_invocation: false

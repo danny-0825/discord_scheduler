@@ -1,6 +1,6 @@
 ---
 name: obsidian-cli-sync-and-publish
-description: Use this skill when the user needs official desktop Obsidian CLI Sync workflows and, when detected as available, Publish workflows. This skill is for remote-side-effect operations and must use explicit intent, capability probing, and conservative safety checks.
+description: Use documented desktop Obsidian CLI for Sync and capability-gated Publish operations with explicit intent and capability probes. Excludes local note editing and headless automation.
 ---
 
 # Obsidian CLI Sync and Publish

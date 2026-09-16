@@ -1,6 +1,6 @@
 ---
 name: obsidian-cli-devtools
-description: Use this skill when the user needs Obsidian runtime debugging or developer introspection through official desktop Obsidian CLI developer commands, including devtools, console/errors capture, DOM/CSS inspection, screenshots, CDP calls, and controlled eval. Do not use for regular note CRUD, task/property editing, Sync/Publish administration, or community tooling outside the official CLI.
+description: Use documented desktop Obsidian CLI developer commands for runtime diagnostics, console capture, DOM/CSS inspection, screenshots, CDP, or explicit eval. Excludes note editing and administration.
 ---
 
 # Obsidian CLI Devtools
